@@ -15,6 +15,34 @@ Para tornar a comparação concreta, o mesmo sistema foi implementado duas vezes
 
 ---
 
+## Estrutura Implementada
+
+O repositório agora contem um projeto em **Java 21** com testes em **JUnit 5**, organizado para comparar duas implementacoes do mesmo sistema:
+
+- `src/main/java/br/edu/pfc1/calculadora/CalculadoraSalarioLiquidoTdd.java` - versao modular, com responsabilidades separadas e desenho mais amigavel a evolucao via TDD
+- `src/main/java/br/edu/pfc1/calculadora/CalculadoraSalarioLiquidoSemTdd.java` - versao direta, com fluxo monolitico, mantida como contraste
+- `src/test/java/br/edu/pfc1/calculadora/CalculadoraSalarioLiquidoTest.java` - bateria de testes que valida ambas as implementacoes com os mesmos cenarios
+- `src/main/java/br/edu/pfc1/calculadora/Main.java` - ponto de entrada simples para executar os calculos
+
+As regras de calculo usam faixas progressivas de INSS e IRRF em um modelo simplificado para fins academicos. O objetivo aqui e comparativo, nao fiscal ou juridico.
+
+## Como Executar
+
+### 1. Compilar e testar
+
+```bash
+mvn test
+```
+
+### 2. Executar a aplicacao
+
+```bash
+javac -d out $(find src/main/java -name "*.java")
+java -cp out br.edu.pfc1.calculadora.Main 5000
+```
+
+---
+
 ## Pergunta-Problema
 
 > Em quais contextos a utilização do Test-Driven Development (TDD) contribui para a redução de defeitos e para a melhoria da legibilidade do código em projetos de software?
