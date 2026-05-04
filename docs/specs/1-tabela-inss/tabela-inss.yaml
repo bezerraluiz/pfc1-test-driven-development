@@ -1,0 +1,75 @@
+feature: tabela-inss
+description: Calcula a contribuição progressiva do INSS a partir do salário bruto, aplicando as alíquotas por faixa conforme a Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026. Retorna o valor total do INSS arredondado para 2 casas decimais (HALF_UP).
+
+tdd_cycle: 1
+package: com.pfc.tdd.calculadora.dominio
+class: TabelaInss
+type: stateless-service
+
+rules:
+  - o cálculo é progressivo: cada faixa salarial tem sua alíquota própria aplicada sobre o valor dentro daquela faixa
+  - a soma das parcelas por faixa é feita sem arredondamento intermediário
+  - arredondamento HALF_UP com escala 2 é aplicado apenas ao total final
+  - salário acima do teto (R$ 8.475,55) usa o teto como limite máximo da última faixa
+  - salário de até R$ 1.621,00 gera INSS apenas na primeira faixa
+  - zero ou negativo não são responsabilidade desta classe — validação delegada a SalarioBruto
+
+inss_table_2026:
+  source: Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026
+  brackets:
+    - faixa: 1
+      limite_superior: "1621.00"
+      aliquota: "0.075"
+    - faixa: 2
+      limite_superior: "2902.84"
+      aliquota: "0.09"
+    - faixa: 3
+      limite_superior: "4354.27"
+      aliquota: "0.12"
+    - faixa: 4
+      limite_superior: "8475.55"
+      aliquota: "0.14"
+
+input:
+  salarioBruto:
+    type: BigDecimal
+    required: true
+    nullable: false
+    min: "1874.00"
+    description: Salário bruto em reais; deve ser positivo e já validado por SalarioBruto
+
+output:
+  inss:
+    type: BigDecimal
+    scale: 2
+    rounding: HALF_UP
+    nullable: false
+    description: Valor total do INSS calculado progressivamente
+
+test_cases:
+  - input: "1500.00"
+    expected_inss: "112.50"
+    note: aliquota 7,5%
+  - input: "1621.00"
+    expected_inss: "121.58"
+    note: aliquota 7,5%
+  - input: "3000.00"
+    expected_inss: "248.60"
+    note: aliquota 12%
+  - input: "5000.00"
+    expected_inss: "501.51"
+    note: aliquota 14%
+  - input: "8475.55"
+    expected_inss: "988.09"
+    note: aliquota 14%
+
+design:
+  - implementar como classe sem campos de instância (stateless) ou com faixas como constante estática final
+  - usar BigDecimal em todos os cálculos — nenhum double
+  - extrair a tabela como lista de FaixaInss (record interno ou constante) para facilitar iteração
+  - método público: BigDecimal calcular(BigDecimal salarioBruto)
+  - método privado sugerido: BigDecimal calcularParcela(BigDecimal salario, BigDecimal limiteInferior, BigDecimal limiteSuperior, BigDecimal aliquota)
+
+assumptions:
+  - os valores da tabela INSS 2026 devem seguir a tabela progressiva documentada nesta especificação — confirmar na publicação oficial
+  - salário maior que o teto do INSS tem INSS calculado até 8.475,55 e o excedente não é tributado

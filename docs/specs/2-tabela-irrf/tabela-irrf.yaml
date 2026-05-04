@@ -1,0 +1,80 @@
+feature: tabela-irrf
+description: Calcula o Imposto de Renda Retido na Fonte (IRRF) a partir da base de cálculo (salário bruto menos INSS), aplicando a tabela progressiva mensal vigente em 05/2025. Retorna o imposto devido arredondado para 2 casas decimais (HALF_UP).
+
+tdd_cycle: 2
+package: com.pfc.tdd.calculadora.dominio
+class: TabelaIrrf
+type: stateless-service
+
+rules:
+  - a base de cálculo do IRRF é: salarioBruto − INSS
+  - o cálculo usa alíquota progressiva: a alíquota da faixa em que a base se enquadra é aplicada sobre a base inteira, e subtrai-se a parcela dedutível da faixa
+  - método de cálculo: IRRF = base × aliquota − parcelaDedutivel
+  - se a base não exceder o limite de isenção, o IRRF é zero (não negativo)
+  - arredondamento HALF_UP com escala 2 aplicado ao resultado final
+  - resultado nunca é negativo: se o cálculo resultar em valor negativo, retornar ZERO
+
+irrf_table_2025_05:
+  source: Tabela IRRF 05/2025 (referência visual fornecida)
+  brackets:
+    - faixa: 1
+      limite_superior: "2428.80"
+      aliquota: "0.00"
+      parcela_dedutivel: "0.00"
+      descricao: isento
+    - faixa: 2
+      limite_superior: "2826.65"
+      aliquota: "0.075"
+      parcela_dedutivel: "182.16"
+    - faixa: 3
+      limite_superior: "3751.05"
+      aliquota: "0.15"
+      parcela_dedutivel: "394.16"
+    - faixa: 4
+      limite_superior: "4664.68"
+      aliquota: "0.225"
+      parcela_dedutivel: "675.49"
+    - faixa: 5
+      limite_superior: null
+      aliquota: "0.275"
+      parcela_dedutivel: "908.73"
+      descricao: acima de R$ 4.664,68
+
+input:
+  baseCalculo:
+    type: BigDecimal
+    required: true
+    nullable: false
+    min: "0.00"
+    description: Salário bruto já descontado o INSS (baseCalculo = salarioBruto − inss)
+
+output:
+  irrf:
+    type: BigDecimal
+    scale: 2
+    rounding: HALF_UP
+    min: "0.00"
+    nullable: false
+    description: Valor do IRRF apurado; nunca negativo
+
+test_cases:
+  - input_base: "1500.00"
+    expected_irrf: "0.00"
+    note: abaixo do limite de isenção
+  - input_base: "2490.40"
+    expected_irrf: "4.62"
+    note: faixa 2: 2490.40 × 7.5% − 182.16
+  - input_base: "4490.40"
+    expected_irrf: "334.85"
+    note: faixa 4: 4490.40 × 22.5% − 675.49
+
+design:
+  - implementar como classe stateless sem campos de instância
+  - método público: BigDecimal calcular(BigDecimal baseCalculo)
+  - algoritmo: encontrar a faixa em que baseCalculo se enquadra, aplicar (baseCalculo × aliquota) − parcelaDedutivel
+  - usar max(resultado, ZERO) para garantir que o retorno nunca seja negativo
+  - usar BigDecimal em todos os cálculos — nenhum double
+
+assumptions:
+  - os valores da tabela foram alinhados à referência visual Tabela IRRF 05/2025 enviada
+  - não há dedução por dependentes ou desconto simplificado nesta implementação (YAGNI)

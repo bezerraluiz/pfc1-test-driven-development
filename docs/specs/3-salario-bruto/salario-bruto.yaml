@@ -1,0 +1,78 @@
+feature: salario-bruto
+description: Define os tipos de valor (records) do domínio da calculadora. SalarioBruto encapsula e valida o salário bruto, garantindo que nunca circule um BigDecimal negativo ou zero como salário. ResultadoCalculo agrega os quatro valores do resultado de um cálculo de salário líquido.
+
+tdd_cycle: 3
+package: com.pfc.tdd.calculadora.dominio
+classes:
+  - SalarioBruto (record)
+  - ResultadoCalculo (record)
+
+rules_salario_bruto:
+  - salário deve ser maior que zero (BigDecimal.compareTo(ZERO) > 0)
+  - valor nulo lança NullPointerException (comportamento padrão do record)
+  - construtor canônico valida o valor e lança IllegalArgumentException com mensagem clara se inválido
+  - SalarioBruto é imutável (record Java 16+)
+
+rules_resultado_calculo:
+  - é um agregador de resultado sem lógica própria — apenas carrega os quatro valores calculados
+  - todos os campos são BigDecimal não nulos
+  - liquido = bruto − inss − irrf (invariante verificada externamente por SalarioLiquidoCalculator)
+  - ResultadoCalculo é imutável (record Java 16+)
+
+types:
+  SalarioBruto:
+    fields:
+      - name: valor
+        type: BigDecimal
+        nullable: false
+        constraint: "valor > 0"
+    throws:
+      - exception: IllegalArgumentException
+        trigger: valor <= 0
+        message: "Salário bruto deve ser maior que zero"
+    factory_notes: construtor canônico com validação; não usar static factory
+
+  ResultadoCalculo:
+    fields:
+      - name: bruto
+        type: BigDecimal
+        nullable: false
+        description: Salário bruto original
+      - name: inss
+        type: BigDecimal
+        nullable: false
+        description: Valor do INSS calculado
+      - name: irrf
+        type: BigDecimal
+        nullable: false
+        description: Valor do IRRF calculado
+      - name: liquido
+        type: BigDecimal
+        nullable: false
+        description: Salário líquido (bruto − inss − irrf)
+
+test_cases_salario_bruto:
+  - input: "3000.00"
+    expected: SalarioBruto criado com sucesso
+  - input: "0.01"
+    expected: SalarioBruto criado com sucesso
+  - input: "0.00"
+    expected: throws IllegalArgumentException
+  - input: "-100.00"
+    expected: throws IllegalArgumentException
+
+test_cases_resultado_calculo:
+  - bruto: "5000.00"
+    inss: "509.60"
+    irrf: "479.00"
+    liquido: "4011.40"
+    expected: ResultadoCalculo criado com sucesso
+
+design:
+  - SalarioBruto: record com um único campo `BigDecimal valor`
+  - ResultadoCalculo: record com quatro campos BigDecimal (bruto, inss, irrf, liquido)
+  - ambos são records Java — sem boilerplate manual
+
+assumptions:
+  - Inss e Irrf não são encapsulados em wrappers próprios por não haver risco concreto de troca acidental neste contexto (YAGNI — conforme OC #3)
+  - ResultadoCalculo não calcula o liquido internamente — recebe os quatro valores já calculados
