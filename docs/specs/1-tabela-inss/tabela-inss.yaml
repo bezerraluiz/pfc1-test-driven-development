@@ -2,17 +2,17 @@ feature: tabela-inss
 description: Calcula a contribuição progressiva do INSS a partir do salário bruto, aplicando as alíquotas por faixa conforme a Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026. Retorna o valor total do INSS arredondado para 2 casas decimais (HALF_UP).
 
 tdd_cycle: 1
-package: com.pfc.tdd.calculadora.dominio
-class: TabelaInss
+package: com.pfc.tdd.calculator.domain
+class: InssTable
 type: stateless-service
 
 rules:
   - o cálculo é progressivo: cada faixa salarial tem sua alíquota própria aplicada sobre o valor dentro daquela faixa
   - a soma das parcelas por faixa é feita sem arredondamento intermediário
-  - arredondamento HALF_UP com escala 2 é aplicado apenas ao total final
+  - arredondamento HALF_EVEN com escala 2 é aplicado apenas ao total final
   - salário acima do teto (R$ 8.475,55) usa o teto como limite máximo da última faixa
   - salário de até R$ 1.621,00 gera INSS apenas na primeira faixa
-  - zero ou negativo não são responsabilidade desta classe — validação delegada a SalarioBruto
+  - zero ou negativo não são responsabilidade desta classe — validação delegada a GrossSalary
 
 inss_table_2026:
   source: Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026
@@ -35,14 +35,14 @@ input:
     type: BigDecimal
     required: true
     nullable: false
-    min: "1874.00"
-    description: Salário bruto em reais; deve ser positivo e já validado por SalarioBruto
+    min: "0.01"
+    description: Salário bruto em reais; deve ser positivo e já validado por GrossSalary
 
 output:
   inss:
     type: BigDecimal
     scale: 2
-    rounding: HALF_UP
+    rounding: HALF_EVEN
     nullable: false
     description: Valor total do INSS calculado progressivamente
 
@@ -66,9 +66,9 @@ test_cases:
 design:
   - implementar como classe sem campos de instância (stateless) ou com faixas como constante estática final
   - usar BigDecimal em todos os cálculos — nenhum double
-  - extrair a tabela como lista de FaixaInss (record interno ou constante) para facilitar iteração
-  - método público: BigDecimal calcular(BigDecimal salarioBruto)
-  - método privado sugerido: BigDecimal calcularParcela(BigDecimal salario, BigDecimal limiteInferior, BigDecimal limiteSuperior, BigDecimal aliquota)
+  - extrair a tabela como lista de InssRange (record interno ou constante) para facilitar iteração
+  - método público: BigDecimal calculate(BigDecimal grossSalary)
+  - método privado sugerido: BigDecimal calculateInstallment(BigDecimal grossSalary, BigDecimal lowerLimit, BigDecimal upperLimit, BigDecimal aliquot)
 
 assumptions:
   - os valores da tabela INSS 2026 devem seguir a tabela progressiva documentada nesta especificação — confirmar na publicação oficial

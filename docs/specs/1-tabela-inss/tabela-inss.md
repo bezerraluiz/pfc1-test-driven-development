@@ -9,20 +9,20 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [ ] Criar `src/main/java/com/pfc/tdd/calculadora/dominio/TabelaInss.java`
-- [ ] Definir a tabela de faixas como constante estática (`private static final List<...>` ou array)
-- [ ] Expor um único método público: `BigDecimal calcular(BigDecimal salarioBruto)`
-- [ ] Usar `BigDecimal` em todo cálculo — **nunca `double`**
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/InssTable.java`
+- [x] Definir a tabela de faixas como constante estática (`private static final List<...>` ou array)
+- [x] Expor um único método público: `BigDecimal calculate(BigDecimal grossSalary)`
+- [x] Usar `BigDecimal` em todo cálculo — **nunca `double`**
 
 ### Algoritmo de cálculo
-- [ ] Para cada faixa da tabela, calcular a parcela de INSS: `min(salario, limiteSuperior) - limiteInferior` multiplicado pela `aliquota`
-- [ ] Acumular as parcelas sem arredondar cada uma individualmente
-- [ ] Aplicar `setScale(2, RoundingMode.HALF_UP)` **apenas** no total final
-- [ ] Para salário acima do teto (R$ 8.475,55), calcular somente até o teto
+- [x] Para cada faixa da tabela, calcular a parcela de INSS: `min(salario, limiteSuperior) - limiteInferior` multiplicado pela `aliquota`
+- [x] Acumular as parcelas sem arredondar cada uma individualmente
+- [x] Aplicar `setScale(2, RoundingMode.HALF_EVEN)` **apenas** no total final
+- [x] Para salário acima do teto (R$ 8.475,55), calcular somente até o teto
 
 ### Testes a escrever (RED first)
-- [ ] `TabelaInssTest.java` em `src/test/java/com/pfc/tdd/calculadora/dominio/`
-- [ ] Cobrir cada caso da tabela abaixo
+- [x] `InssTableTest.java` em `src/test/java/com/pfc/tdd/calculator/domain/`
+- [x] Cobrir cada caso da tabela abaixo
 
 ---
 
@@ -49,7 +49,7 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 
 | Campo  | Tipo       | Escala | Arredondamento | Descrição                         |
 |--------|------------|--------|----------------|-----------------------------------|
-| `inss` | BigDecimal | 2      | HALF_UP        | Contribuição total do INSS apurada |
+| `inss` | BigDecimal | 2      | HALF_EVEN      | Contribuição total do INSS apurada |
 
 ---
 
@@ -72,7 +72,7 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 3. Faixa 3: `(4.354,27 − 2.902,84) × 12%` = R$ 174,1716
 4. Faixa 4: `(5.000,00 − 4.354,27) × 14%` = R$ 90,4022
 5. Soma bruta: R$ 501,5144
-6. Arredondado HALF_UP → **R$ 501,51**
+6. Arredondado HALF_EVEN → **R$ 501,51**
 
 ---
 
@@ -81,7 +81,7 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 - O cálculo é **progressivo**: não aplica uma única alíquota sobre o salário total.
 - **Sem arredondamento intermediário** por faixa — arredondar apenas o total final.
 - Salário acima do teto (`R$ 8.475,55`): calcular somente até o teto; o excedente não gera INSS adicional.
-- Validação de valor negativo/zero: **não é responsabilidade desta classe** — delegado ao `SalarioBruto`.
+- Validação de valor negativo/zero: **não é responsabilidade desta classe** — delegado ao `GrossSalary`.
 
 ---
 
@@ -89,8 +89,8 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 
 | Regra | Aplicação |
 |-------|-----------|
-| OC #3 | Receber `BigDecimal` diretamente (SalarioBruto já valida antes) |
-| OC #7 | `calcular()` ≤ 5 linhas; extrair `calcularParcela()` se necessário |
+| OC #3 | Receber `BigDecimal` diretamente (GrossSalary já valida antes) |
+| OC #7 | `calculate()` ≤ 5 linhas; extrair `calculateInstallment()` se necessário |
 | OC #8 | Nenhum campo de instância — tabela como constante estática |
 
 ---
@@ -98,4 +98,4 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 ## Suposições
 
 - Os valores da tabela INSS 2026 devem seguir a tabela progressiva documentada nesta especificação — confirmar na publicação oficial.
-- Salário abaixo de R$ 0,01 não chegará a esta classe (validado antes por `SalarioBruto`).
+- Salário abaixo de R$ 0,01 não chegará a esta classe (validado antes por `GrossSalary`).

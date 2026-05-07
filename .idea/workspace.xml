@@ -4,13 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="998f6693-f6d7-47cb-9dd5-edc14aec5230" name="Changes" comment="docs: Criado documentação das especificações para desenvolvimento do projeto">
+    <list default="true" id="998f6693-f6d7-47cb-9dd5-edc14aec5230" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/pfc/tdd/calculadora/dominio/TabelaInss.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -20,6 +28,9 @@
   &quot;associatedIndex&quot;: 4
 }</component>
   <component name="ProjectId" id="3DBz8IE6t6LVmzayEpg1NB76GYd" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -39,7 +50,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "settings.sync",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -60,6 +71,7 @@
       <workItem from="1777783369389" duration="6988000" />
       <workItem from="1777869804825" duration="457000" />
       <workItem from="1777870676597" duration="172000" />
+      <workItem from="1778097759011" duration="681000" />
     </task>
     <task id="LOCAL-00001" summary="docs: Criado documentação das especificações para desenvolvimento do projeto">
       <option name="closed" value="true" />
