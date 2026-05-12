@@ -1,5 +1,5 @@
 feature: input-parser
-description: Parses a String entered by the user into a GrossSalary. Throws InvalidInputException for non-numeric, zero, or negative inputs, with friendly Portuguese messages that are displayed in the TUI without a stack trace.
+description: Faz o parse de uma String digitada pelo usuário em um GrossSalary. Lança InvalidInputException para entradas não numéricas, zero ou negativas, com mensagens amigáveis em português que são exibidas na TUI sem stack trace.
 
 tdd_cycle: 5
 package: com.pfc.tdd.calculator.tui
@@ -7,12 +7,12 @@ class: InputParser
 type: utility
 
 rules:
-  - input string must be trimmed before calling parse
-  - accept both dot (.) and comma (,) as decimal separators
-  - empty or blank input throws InvalidInputException
-  - non-numeric input throws InvalidInputException
-  - zero or negative input throws InvalidInputException
-  - valid input returns GrossSalary with the parsed value
+  - entrada válida retorna GrossSalary com o valor parseado
+  - aceitar ponto e vírgula como separador decimal
+  - entrada vazia ou em branco lança InvalidInputException
+  - entrada não numérica lança InvalidInputException
+  - entrada zero ou negativa lança InvalidInputException
+  - o trim() da string deve ser feito externamente antes de chamar o parser
 
 inputs:
   text:
@@ -43,9 +43,9 @@ test_cases:
     expected: throws InvalidInputException
 
 design:
-  - implemented as a stateless class
-  - public method: GrossSalary parse(String text)
-  - use text.replace(",", ".") for normalization
-  - catch NumberFormatException and rethrow as InvalidInputException
-  - catch IllegalArgumentException from GrossSalary canonical constructor and rethrow as InvalidInputException
-  - follow OC #2: use early throw instead of if-else
+  - implementar como classe stateless
+  - método público: GrossSalary parse(String text)
+  - usar text.replace(",", ".") para normalização
+  - capturar NumberFormatException e relançar como InvalidInputException
+  - capturar IllegalArgumentException do construtor canônico de GrossSalary e relançar como InvalidInputException
+  - seguir OC #2: usar early throw em vez de if-else

@@ -1,5 +1,5 @@
 feature: tui-formatter
-description: Formats a CalculationResult as a TUI box panel with Unicode borders and ANSI colors. Produces a multi-line String ready for display in the terminal. It is the only class that knows about monetary formatting and ANSI codes.
+description: Formata um CalculationResult como um painel de caixa TUI com bordas Unicode e cores ANSI. Produz uma String multi-linha pronta para exibição no terminal. É a única classe que conhece formatação monetária e códigos ANSI.
 
 tdd_cycle: 6
 package: com.pfc.tdd.calculator.tui
@@ -7,13 +7,13 @@ class: TuiFormatter
 type: utility
 
 rules:
-  - receives CalculationResult and returns formatted String with Unicode borders and ANSI
-  - use ciano (\033[36m) for the header
-  - use red (\033[31m) for deductions (INSS, IRRF)
-  - use bold green (\033[1;32m) for the net salary
-  - currency format: R$ X.XXX,XX (dot for thousands, comma for decimals, 2 decimal places)
-  - internal panel width: fixed at 38 characters
-  - format(CalculationResult) method is the only public method
+  - recebe CalculationResult e retorna String formatada com bordas Unicode e ANSI
+  - usar ciano (\033[36m) para o cabeçalho
+  - usar vermelho (\033[31m) para descontos (INSS, IRRF)
+  - usar verde negrito (\033[1;32m) para o salário líquido
+  - formato monetário: R$ X.XXX,XX (ponto para milhar, vírgula para decimal, 2 casas)
+  - largura interna do painel: fixa em 38 caracteres
+  - método format(CalculationResult) é o único método público
 
 inputs:
   result:
@@ -24,13 +24,13 @@ outputs:
     type: String
 
 design:
-  - implemented as a stateless class
-  - public method: String format(CalculationResult result)
-  - private method: String formatCurrency(BigDecimal value) for DRY
-  - use StringBuilder or formatted Strings to compose the lines
-  - follow OC #7: keep format() method concise, extract panel line composition to private methods if needed
+  - implementar como classe stateless
+  - método público: String format(CalculationResult result)
+  - método privado: String formatCurrency(BigDecimal value) para DRY
+  - usar StringBuilder ou Strings formatadas para compor as linhas
+  - seguir OC #7: manter método format() conciso, extrair composição de linhas para métodos privados se necessário
 
 assumptions:
-  - currency formatting is manually implemented (or via Locale.forLanguageTag("pt-BR")) to avoid system locale dependency
-  - ANSI codes are hardcoded as they are specific to the TUI requirement
-  - TestHelper.stripAnsi() must be used in tests to allow asserting content without being blocked by ANSI codes
+  - formatação monetária é feita manualmente (ou via Locale pt-BR) para evitar dependência de locale do sistema
+  - códigos ANSI são hardcoded por serem específicos do requisito de TUI
+  - TestHelper.stripAnsi() deve ser usado em testes para permitir assert de conteúdo sem ser bloqueado por códigos ANSI

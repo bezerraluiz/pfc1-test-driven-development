@@ -1,5 +1,5 @@
 feature: gross-salary
-description: Defines the domain's value types (records). GrossSalary encapsulates and validates the gross salary, ensuring that a negative or zero BigDecimal never circulates as a salary. CalculationResult aggregates the four values of a net salary calculation result.
+description: Define os tipos de valor (records) do domínio da calculadora. GrossSalary encapsula e valida o salário bruto, garantindo que nunca circule um BigDecimal negativo ou zero como salário. CalculationResult agrega os quatro valores do resultado de um cálculo de salário líquido.
 
 tdd_cycle: 3
 package: com.pfc.tdd.calculator.domain
@@ -8,16 +8,16 @@ classes:
   - CalculationResult (record)
 
 rules_gross_salary:
-  - salary must be greater than zero (BigDecimal.compareTo(ZERO) > 0)
-  - null value throws NullPointerException (default record behavior)
-  - canonical constructor validates the value and throws IllegalArgumentException with a clear message if invalid
-  - GrossSalary is immutable (Java 16+ record)
+  - salário deve ser maior que zero (BigDecimal.compareTo(ZERO) > 0)
+  - valor nulo lança NullPointerException (comportamento padrão do record)
+  - construtor canônico valida o valor e lança IllegalArgumentException com mensagem clara se inválido
+  - GrossSalary é imutável (record Java 16+)
 
 rules_calculation_result:
-  - it is a result aggregator without its own logic — it only carries the four calculated values
-  - all fields are non-null BigDecimal
-  - net = gross − inss − irrf (invariant verified externally by SalaryNetCalculator)
-  - CalculationResult is immutable (Java 16+ record)
+  - é um agregador de resultado sem lógica própria — apenas carrega os quatro valores calculados
+  - todos os campos são BigDecimal não nulos
+  - net = gross − inss − irrf (invariante verificada externamente por SalaryNetCalculator)
+  - CalculationResult é imutável (record Java 16+)
 
 types:
   GrossSalary:
@@ -30,32 +30,32 @@ types:
       - exception: IllegalArgumentException
         trigger: value <= 0
         message: "Gross salary must be greater than zero"
-    factory_notes: canonical constructor with validation; do not use static factory
+    factory_notes: construtor canônico com validação; não usar static factory
 
   CalculationResult:
     fields:
       - name: gross
         type: BigDecimal
         nullable: false
-        description: Original gross salary
+        description: Salário bruto original
       - name: inss
         type: BigDecimal
         nullable: false
-        description: Calculated INSS amount
+        description: Valor do INSS calculado
       - name: irrf
         type: BigDecimal
         nullable: false
-        description: Calculated IRRF amount
+        description: Valor do IRRF calculado
       - name: net
         type: BigDecimal
         nullable: false
-        description: Net salary (gross − inss − irrf)
+        description: Salário líquido (gross − inss − irrf)
 
 test_cases_gross_salary:
   - input: "3000.00"
-    expected: GrossSalary created successfully
+    expected: GrossSalary criado com sucesso
   - input: "0.01"
-    expected: GrossSalary created successfully
+    expected: GrossSalary criado com sucesso
   - input: "0.00"
     expected: throws IllegalArgumentException
   - input: "-100.00"
@@ -66,13 +66,13 @@ test_cases_calculation_result:
     inss: "509.60"
     irrf: "479.00"
     net: "4011.40"
-    expected: CalculationResult created successfully
+    expected: CalculationResult criado com sucesso
 
 design:
-  - GrossSalary: record with a single `BigDecimal value` field
+  - GrossSalary: record com um único campo `BigDecimal value`
   - CalculationResult: record with four BigDecimal fields (gross, inss, irrf, net)
-  - both are Java records — no manual boilerplate
+  - ambos são records Java — sem boilerplate manual
 
 assumptions:
-  - inss and irrf are not encapsulated in their own wrappers as there is no concrete risk of accidental exchange in this context (YAGNI — as per OC #3)
-  - CalculationResult does not calculate the net internally — it receives the four already calculated values
+  - inss e irrf não são encapsulados em wrappers próprios por não haver risco concreto de troca acidental neste contexto (YAGNI — conforme OC #3)
+  - CalculationResult não calcula o líquido internamente — recebe os quatro valores já calculados

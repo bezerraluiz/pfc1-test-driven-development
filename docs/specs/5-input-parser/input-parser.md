@@ -33,7 +33,7 @@ Converte a string digitada pelo usuário em um `GrossSalary`. Lança `InvalidInp
 
 | Parâmetro | Tipo   | Descrição                                          |
 |-----------|--------|----------------------------------------------------|
-| `text`   | String | String lida do Scanner; quem chama deve fazer trim |
+| `text`    | String | String lida do Scanner; quem chama deve fazer trim |
 
 ## Output
 
@@ -77,12 +77,12 @@ Converte a string digitada pelo usuário em um `GrossSalary`. Lança `InvalidInp
 | Regra | Aplicação |
 |-------|-----------|
 | OC #2 | `parse()` usa early throw em vez de if-else aninhado |
-| OC #7 | `parse()` ≤ 8 lines |
+| OC #7 | `parse()` ≤ 8 linhas |
 | OC #8 | Nenhum campo de instância |
 
 ---
 
 ## Suposições
 
-- O `trim()` da string é feito pela TUI antes de chamar `parsear()` — `InputParser` não faz trim.
-- `InputInvalidoException` é unchecked para simplificar o loop de retry em `TuiApp` (sem `throws` declarado no método).
+- O `trim()` da string é feito pela TUI antes de chamar `parse()` — `InputParser` não faz trim.
+- `InvalidInputException` é unchecked para simplificar o loop de retry em `TuiApp` (sem `throws` declarado no método).

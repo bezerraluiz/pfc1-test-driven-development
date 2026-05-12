@@ -1,29 +1,29 @@
-# GrossSalary + CalculationResult — TDD Cycle 3
+# GrossSalary + CalculationResult — Ciclo TDD 3
 
-## Description
+## Descrição
 
-Defines the domain's immutable value types. `GrossSalary` encapsulates and validates the gross salary as a Java record, preventing a negative or zero value from circulating through the system. `CalculationResult` aggregates the four fields of a net salary assessment — without its own calculation logic.
+Define os tipos de valor imutáveis do domínio. `GrossSalary` encapsula e valida o salário bruto como record Java, impedindo que um valor negativo ou zero circule pelo sistema. `CalculationResult` agrega os quatro campos de uma apuração de salário líquido — sem lógica de cálculo própria.
 
 ---
 
-## Implementation Checklist
+## Checklist de Implementação
 
 ### GrossSalary
-- [ ] Create `src/test/java/com/pfc/tdd/calculator/domain/GrossSalaryTest.java` (RED)
-- [ ] Create `src/main/java/com/pfc/tdd/calculator/domain/GrossSalary.java` as a `record` (GREEN)
-- [ ] Add canonical constructor with validation: throw `IllegalArgumentException` if `value <= 0`
-- [ ] **Never use `double`** — field is `BigDecimal`
+- [ ] Criar `src/test/java/com/pfc/tdd/calculator/domain/GrossSalaryTest.java` (RED)
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/GrossSalary.java` como `record` (GREEN)
+- [ ] Adicionar construtor canônico com validação: lançar `IllegalArgumentException` se `value <= 0`
+- [ ] **Nunca usar `double`** — campo é `BigDecimal`
 
 ### CalculationResult
-- [ ] Create `src/test/java/com/pfc/tdd/calculator/domain/CalculationResultTest.java` (RED)
-- [ ] Create `src/main/java/com/pfc/tdd/calculator/domain/CalculationResult.java` as a `record` (GREEN)
-- [ ] Four fields: `gross`, `inss`, `irrf`, `net` — all `BigDecimal`, non-null
+- [ ] Criar `src/test/java/com/pfc/tdd/calculator/domain/CalculationResultTest.java` (RED)
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/CalculationResult.java` como `record` (GREEN)
+- [ ] Quatro campos: `gross`, `inss`, `irrf`, `net` — todos `BigDecimal`, não nulos
 
 ---
 
 ## GrossSalary
 
-### Definition
+### Definição
 
 ```java
 public record GrossSalary(BigDecimal value) {
@@ -35,21 +35,21 @@ public record GrossSalary(BigDecimal value) {
 }
 ```
 
-### Test Cases
+### Casos de Teste
 
-| Input         | Expected Result                             |
+| Entrada       | Resultado esperado                          |
 |---------------|---------------------------------------------|
-| `3000.00`     | Record created successfully                 |
-| `0.01`        | Record created successfully (minimum valid) |
+| `3000.00`     | Record criado com sucesso                   |
+| `0.01`        | Record criado com sucesso (mínimo válido)   |
 | `0.00`        | `IllegalArgumentException`                  |
 | `-100.00`     | `IllegalArgumentException`                  |
-| `null`        | `NullPointerException` (default record behavior) |
+| `null`        | `NullPointerException` (comportamento padrão do record) |
 
 ---
 
 ## CalculationResult
 
-### Definition
+### Definição
 
 ```java
 public record CalculationResult(
@@ -60,18 +60,18 @@ public record CalculationResult(
 ) {}
 ```
 
-### Fields
+### Campos
 
-| Field     | Type       | Description                                 |
+| Campo     | Tipo       | Descrição                                   |
 |-----------|------------|---------------------------------------------|
-| `gross`   | BigDecimal | Original gross salary                       |
-| `inss`    | BigDecimal | Calculated INSS contribution                |
-| `irrf`    | BigDecimal | Calculated IRRF                             |
-| `net`     | BigDecimal | Net salary (`gross − inss − irrf`)          |
+| `gross`   | BigDecimal | Salário bruto original                      |
+| `inss`    | BigDecimal | Contribuição INSS calculada                 |
+| `irrf`    | BigDecimal | IRRF calculado                              |
+| `net`     | BigDecimal | Salário líquido (`gross − inss − irrf`)     |
 
-> `CalculationResult` **does not calculate** the net salary — it receives the four values already prepared from `SalaryNetCalculator`.
+> `CalculationResult` **não calcula** o líquido — recebe os quatro valores já prontos do `SalaryNetCalculator`.
 
-### Test Cases
+### Casos de Teste
 
 | gross       | inss      | irrf      | net         |
 |-------------|-----------|-----------|-------------|
@@ -79,25 +79,25 @@ public record CalculationResult(
 
 ---
 
-## Rules
+## Regras
 
-- `GrossSalary.value` must be strictly greater than zero — zero and negative values throw `IllegalArgumentException`.
-- Both records are **immutable** by definition — do not add setters or mutable fields.
-- `CalculationResult` has no internal logic — it is just a data aggregator.
+- `GrossSalary.value` deve ser estritamente maior que zero — zero e negativos lançam `IllegalArgumentException`.
+- Ambos os records são **imutáveis** por definição — não adicionar setters nem campos mutáveis.
+- `CalculationResult` não tem lógica interna — é apenas um agregador de dados.
 
 ---
 
-## Object Calisthenics Principles applied
+## Princípios Object Calisthenics aplicados
 
-| Rule  | Application |
+| Regra | Aplicação |
 |-------|-----------|
-| OC #3 | `GrossSalary` encapsulates `BigDecimal` with validation; `inss`/`irrf` are not encapsulated (YAGNI) |
-| OC #7 | `GrossSalary` canonical constructor ≤ 3 lines |
-| OC #8 | `GrossSalary`: 1 field. `CalculationResult`: 4 fields — justified exception (it's a result DTO) |
+| OC #3 | `GrossSalary` encapsula `BigDecimal` com validação; `inss`/`irrf` não são encapsulados (YAGNI) |
+| OC #7 | Construtor canônico de `GrossSalary` ≤ 3 linhas |
+| OC #8 | `GrossSalary`: 1 campo. `CalculationResult`: 4 campos — exception justificada (é um DTO de resultado) |
 
 ---
 
-## Assumptions
+## Suposições
 
-- `inss` and `irrf` are not encapsulated in their own wrappers because there is no concrete risk of accidental exchange given the typed use of `CalculationResult`.
-- `CalculationResult` has 4 fields (exceeds OC #8 of 2 fields), which is accepted for being a result record — document this decision in the cycle log.
+- `inss` e `irrf` não são encapsulados em wrappers próprios porque não há risco concreto de troca acidental dado o uso tipado do `CalculationResult`.
+- `CalculationResult` tem 4 campos (excede OC #8 de 2 campos), o que é aceito por ser um record de resultado — documentar essa decisão no log de ciclo.

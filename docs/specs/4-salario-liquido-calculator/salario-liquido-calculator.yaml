@@ -1,5 +1,5 @@
 feature: salary-net-calculator
-description: Orchestrates the net salary calculation from a GrossSalary, delegating to InssTable and IrrfTable, and returning a CalculationResult with the four values. It is the entry point for the calculator's business logic.
+description: Orquestra o cálculo do salário líquido a partir de um GrossSalary, delegando para InssTable e IrrfTable, e retornando um CalculationResult com os quatro valores. É o ponto de entrada da lógica de negócio da calculadora.
 
 tdd_cycle: 4
 package: com.pfc.tdd.calculator.domain
@@ -7,12 +7,12 @@ class: SalaryNetCalculator
 type: service
 
 rules:
-  - receives GrossSalary (already validated) — does not revalidate the salary value
-  - calculates INSS by calling InssTable.calculate(grossSalary.value())
-  - calculates the IRRF base: taxableBase = grossSalary.value() − inss
-  - calculates IRRF by calling IrrfTable.calculate(taxableBase)
-  - calculates net salary: net = grossSalary.value() − inss − irrf
-  - returns CalculationResult with the four values
+  - recebe GrossSalary (já validado) — não revalida o valor do salário
+  - calcula INSS chamando InssTable.calculate(grossSalary.value())
+  - calcula a base do IRRF: taxableBase = grossSalary.value() − inss
+  - calcula IRRF chamando IrrfTable.calculate(taxableBase)
+  - calcula salário líquido: net = grossSalary.value() − inss − irrf
+  - retorna CalculationResult com os quatro valores
 
 inputs:
   grossSalary:
@@ -24,18 +24,18 @@ outputs:
   calculationResult:
     type: CalculationResult
     fields:
-      gross: value from grossSalary.value()
-      inss: value from InssTable.calculate()
-      irrf: value from IrrfTable.calculate()
-      net: result of gross − inss − irrf
+      gross: valor de grossSalary.value()
+      inss: valor de InssTable.calculate()
+      irrf: valor de IrrfTable.calculate()
+      net: resultado de gross − inss − irrf
 
 design:
-  - implemented with Dependency Injection (constructor)
-  - dependencies: InssTable, IrrfTable
-  - public method: CalculationResult calculate(GrossSalary grossSalary)
-  - follow OC #5: name all intermediate results (inss, taxableBase, irrf, net)
-  - follow OC #8: exactly 2 instance fields (inssTable, irrfTable)
+  - implementar com injeção de dependência via construtor
+  - dependências: InssTable, IrrfTable
+  - método público: CalculationResult calculate(GrossSalary grossSalary)
+  - seguir OC #5: nomear todos os resultados intermediários (inss, taxableBase, irrf, net)
+  - seguir OC #8: exatamente 2 campos de instância (inssTable, irrfTable)
 
 assumptions:
-  - TabelaInss and TabelaIrrf are stateless and can be instantiated as real objects in tests
-  - No mocks used in this cycle's tests — integration testing between domain components
+  - InssTable e IrrfTable são stateless e podem ser instanciados como objetos reais em testes
+  - Sem uso de mocks nos testes deste ciclo — teste de integração entre componentes do domínio

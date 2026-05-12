@@ -85,5 +85,5 @@ Orquestra o cálculo completo do salário líquido. Recebe um `GrossSalary`, del
 
 ## Suposições
 
-- `TabelaInss` e `TabelaIrrf` são stateless — pode criar uma única instância em testes sem efeitos colaterais.
+- `InssTable` e `IrrfTable` são stateless — pode criar uma única instância em testes sem efeitos colaterais.
 - Nos testes, usar instâncias reais das tabelas (não mocks) — confirma integração entre os ciclos.

@@ -18,7 +18,7 @@ Ponto de entrada da TUI interativa. Orquestra o fluxo completo: exibe banner, so
 
 ### TddApplication.java (modificar — não reescrever)
 - [ ] Adicionar `implements CommandLineRunner` ou `@Bean CommandLineRunner`
-- [ ] Uma linha de delegação: criar `TuiApp` e chamar `execute(new Scanner(System.`in`), System.out)`
+- [ ] Uma linha de delegação: criar `TuiApp` e chamar `execute(new Scanner(System.in), System.out)`
 
 ---
 
@@ -91,7 +91,7 @@ public void execute(Scanner scanner, PrintStream output) {
 
 | Parâmetro    | Tipo                      | Descrição                                        |
 |--------------|---------------------------|--------------------------------------------------|
-| `calculator` | SalaryNetCalculator  | Calculador do salário líquido                   |
+| `calculator` | SalaryNetCalculator       | Calculador do salário líquido                   |
 | `parser`     | InputParser               | Parser de entrada do usuário                    |
 
 ## Input (execute)
@@ -99,7 +99,7 @@ public void execute(Scanner scanner, PrintStream output) {
 | Parâmetro | Tipo        | Descrição                                                 |
 |-----------|-------------|-----------------------------------------------------------|
 | `scanner` | Scanner     | Leitura da entrada; criado e fechado pelo chamador        |
-| `output`   | PrintStream | Destino do output; `System.out` em produção               |
+| `output`  | PrintStream | Destino do output; `System.out` em produção               |
 
 ---
 
