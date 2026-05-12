@@ -9,18 +9,18 @@ Classe stateless que calcula o IRRF (Imposto de Renda Retido na Fonte) a partir 
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [ ] Criar `src/test/java/com/pfc/tdd/calculadora/dominio/TabelaIrrfTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculadora/dominio/TabelaIrrf.java` (GREEN)
-- [ ] Nenhum campo de instância — tabela como constante estática
-- [ ] Método público único: `BigDecimal calcular(BigDecimal baseCalculo)`
-- [ ] Usar `BigDecimal` em todos os cálculos — **nunca `double`**
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/domain/IrrfTableTest.java` (RED)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/IrrfTable.java` (GREEN)
+- [x] Nenhum campo de instância — tabela como constante estática
+- [x] Método público único: `BigDecimal calculate(BigDecimal taxableBase)`
+- [x] Usar `BigDecimal` em todos os cálculos — **nunca `double`**
 
 ### Algoritmo
-- [ ] Encontrar a faixa em que `baseCalculo` se enquadra
-- [ ] Se `baseCalculo ≤ R$ 2.428,80` → retornar `BigDecimal.ZERO`
-- [ ] Caso contrário: `irrf = baseCalculo × aliquota − parcelaDedutivel`
-- [ ] Aplicar `max(irrf, ZERO)` para garantir resultado não-negativo
-- [ ] Arredondar com `setScale(2, RoundingMode.HALF_UP)` no resultado final
+- [x] Encontrar a faixa em que `taxableBase` se enquadra
+- [x] Se `taxableBase ≤ R$ 2.428,80` → retornar `BigDecimal.ZERO`
+- [x] Caso contrário: `irrf = taxableBase × aliquota − parcelaDedutivel`
+- [x] Aplicar `max(irrf, ZERO)` para garantir resultado não-negativo
+- [x] Arredondar com `setScale(2, RoundingMode.HALF_UP)` no resultado final
 
 ---
 
