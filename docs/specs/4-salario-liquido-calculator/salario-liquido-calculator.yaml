@@ -1,59 +1,41 @@
-feature: salario-liquido-calculator
-description: Orquestra o cálculo do salário líquido a partir de um SalarioBruto, delegando para TabelaInss e TabelaIrrf, e retornando um ResultadoCalculo com os quatro valores. É o ponto de entrada da lógica de negócio da calculadora.
+feature: salary-net-calculator
+description: Orchestrates the net salary calculation from a GrossSalary, delegating to InssTable and IrrfTable, and returning a CalculationResult with the four values. It is the entry point for the calculator's business logic.
 
 tdd_cycle: 4
-package: com.pfc.tdd.calculadora.dominio
-class: SalarioLiquidoCalculator
+package: com.pfc.tdd.calculator.domain
+class: SalaryNetCalculator
+type: service
 
 rules:
-  - recebe SalarioBruto (já validado) — não revalida o valor do salário
-  - calcula INSS chamando TabelaInss.calcular(salarioBruto.valor())
-  - calcula a base do IRRF: baseIrrf = salarioBruto.valor() − inss
-  - calcula IRRF chamando TabelaIrrf.calcular(baseIrrf)
-  - calcula salário líquido: liquido = salarioBruto.valor() − inss − irrf
-  - retorna ResultadoCalculo com os quatro valores
-  - nunca retorna null
-  - OC #8: exatamente 2 campos de instância (TabelaInss e TabelaIrrf)
+  - receives GrossSalary (already validated) — does not revalidate the salary value
+  - calculates INSS by calling InssTable.calculate(grossSalary.value())
+  - calculates the IRRF base: taxableBase = grossSalary.value() − inss
+  - calculates IRRF by calling IrrfTable.calculate(taxableBase)
+  - calculates net salary: net = grossSalary.value() − inss − irrf
+  - returns CalculationResult with the four values
 
-input:
-  salarioBruto:
-    type: SalarioBruto
+inputs:
+  grossSalary:
+    type: GrossSalary
     required: true
     nullable: false
-    description: Wrapper de valor do salário bruto, já validado
 
-output:
-  resultado:
-    type: ResultadoCalculo
-    nullable: false
+outputs:
+  calculationResult:
+    type: CalculationResult
     fields:
-      bruto: valor de salarioBruto.valor()
-      inss: calculado por TabelaInss
-      irrf: calculado por TabelaIrrf com base (bruto − inss)
-      liquido: bruto − inss − irrf
-
-test_cases:
-  - salario_bruto: "1500.00"
-    expected_inss: "112.50"
-    expected_irrf: "0.00"
-    expected_liquido: "1387.50"
-  - salario_bruto: "3000.00"
-    expected_inss: "253.41"
-    expected_irrf: "a confirmar per tabela 2026"
-    expected_liquido: "a confirmar"
-  - salario_bruto: "5000.00"
-    expected_inss: "509.60"
-    expected_irrf: "479.00"
-    expected_liquido: "4011.40"
-    note: valores conforme plano — confirmar IRRF per tabela oficial 2026
+      gross: value from grossSalary.value()
+      inss: value from InssTable.calculate()
+      irrf: value from IrrfTable.calculate()
+      net: result of gross − inss − irrf
 
 design:
-  - constructor: SalarioLiquidoCalculator(TabelaInss tabelaInss, TabelaIrrf tabelaIrrf)
-  - método público: ResultadoCalculo calcular(SalarioBruto salarioBruto)
-  - nomear resultados intermediários (OC #5): BigDecimal inss = ..., BigDecimal baseIrrf = ..., BigDecimal irrf = ..., BigDecimal liquido = ...
-  - método ≤ 7 linhas (OC #7)
-  - não instanciar TabelaInss/TabelaIrrf internamente — receber via construtor (permite teste sem mock)
+  - implemented with Dependency Injection (constructor)
+  - dependencies: InssTable, IrrfTable
+  - public method: CalculationResult calculate(GrossSalary grossSalary)
+  - follow OC #5: name all intermediate results (inss, taxableBase, irrf, net)
+  - follow OC #8: exactly 2 instance fields (inssTable, irrfTable)
 
 assumptions:
-  - TabelaInss e TabelaIrrf são stateless; instâncias únicas são suficientes
-  - em testes, criar instâncias reais de TabelaInss e TabelaIrrf (sem mock framework)
+  - TabelaInss and TabelaIrrf are stateless and can be instantiated as real objects in tests
+  - No mocks used in this cycle's tests — integration testing between domain components

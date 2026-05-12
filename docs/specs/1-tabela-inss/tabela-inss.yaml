@@ -31,7 +31,7 @@ inss_table_2026:
       aliquota: "0.14"
 
 input:
-  salarioBruto:
+  grossSalary:
     type: BigDecimal
     required: true
     nullable: false

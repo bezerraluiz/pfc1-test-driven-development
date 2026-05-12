@@ -43,7 +43,7 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 
 | Parâmetro      | Tipo       | Descrição                                                      |
 |----------------|------------|----------------------------------------------------------------|
-| `salarioBruto` | BigDecimal | Salário bruto positivo, já validado pelo wrapper `SalarioBruto` |
+| `grossSalary` | BigDecimal | Salário bruto positivo, já validado pelo wrapper `GrossSalary` |
 
 ## Output
 

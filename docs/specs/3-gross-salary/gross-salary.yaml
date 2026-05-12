@@ -1,0 +1,78 @@
+feature: gross-salary
+description: Defines the domain's value types (records). GrossSalary encapsulates and validates the gross salary, ensuring that a negative or zero BigDecimal never circulates as a salary. CalculationResult aggregates the four values of a net salary calculation result.
+
+tdd_cycle: 3
+package: com.pfc.tdd.calculator.domain
+classes:
+  - GrossSalary (record)
+  - CalculationResult (record)
+
+rules_gross_salary:
+  - salary must be greater than zero (BigDecimal.compareTo(ZERO) > 0)
+  - null value throws NullPointerException (default record behavior)
+  - canonical constructor validates the value and throws IllegalArgumentException with a clear message if invalid
+  - GrossSalary is immutable (Java 16+ record)
+
+rules_calculation_result:
+  - it is a result aggregator without its own logic — it only carries the four calculated values
+  - all fields are non-null BigDecimal
+  - net = gross − inss − irrf (invariant verified externally by SalaryNetCalculator)
+  - CalculationResult is immutable (Java 16+ record)
+
+types:
+  GrossSalary:
+    fields:
+      - name: value
+        type: BigDecimal
+        nullable: false
+        constraint: "value > 0"
+    throws:
+      - exception: IllegalArgumentException
+        trigger: value <= 0
+        message: "Gross salary must be greater than zero"
+    factory_notes: canonical constructor with validation; do not use static factory
+
+  CalculationResult:
+    fields:
+      - name: gross
+        type: BigDecimal
+        nullable: false
+        description: Original gross salary
+      - name: inss
+        type: BigDecimal
+        nullable: false
+        description: Calculated INSS amount
+      - name: irrf
+        type: BigDecimal
+        nullable: false
+        description: Calculated IRRF amount
+      - name: net
+        type: BigDecimal
+        nullable: false
+        description: Net salary (gross − inss − irrf)
+
+test_cases_gross_salary:
+  - input: "3000.00"
+    expected: GrossSalary created successfully
+  - input: "0.01"
+    expected: GrossSalary created successfully
+  - input: "0.00"
+    expected: throws IllegalArgumentException
+  - input: "-100.00"
+    expected: throws IllegalArgumentException
+
+test_cases_calculation_result:
+  - gross: "5000.00"
+    inss: "509.60"
+    irrf: "479.00"
+    net: "4011.40"
+    expected: CalculationResult created successfully
+
+design:
+  - GrossSalary: record with a single `BigDecimal value` field
+  - CalculationResult: record with four BigDecimal fields (gross, inss, irrf, net)
+  - both are Java records — no manual boilerplate
+
+assumptions:
+  - inss and irrf are not encapsulated in their own wrappers as there is no concrete risk of accidental exchange in this context (YAGNI — as per OC #3)
+  - CalculationResult does not calculate the net internally — it receives the four already calculated values

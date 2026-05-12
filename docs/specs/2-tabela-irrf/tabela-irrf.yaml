@@ -7,7 +7,7 @@ class: TabelaIrrf
 type: stateless-service
 
 rules:
-  - a base de cálculo do IRRF é: salarioBruto − INSS
+  - a base de cálculo do IRRF é: grossSalary − INSS
   - o cálculo usa alíquota progressiva: a alíquota da faixa em que a base se enquadra é aplicada sobre a base inteira, e subtrai-se a parcela dedutível da faixa
   - método de cálculo: IRRF = base × aliquota − parcelaDedutivel
   - se a base não exceder o limite de isenção, o IRRF é zero (não negativo)
@@ -41,12 +41,12 @@ irrf_table_2025_05:
       descricao: acima de R$ 4.664,68
 
 input:
-  baseCalculo:
+  taxableBase:
     type: BigDecimal
     required: true
     nullable: false
     min: "0.00"
-    description: Salário bruto já descontado o INSS (baseCalculo = salarioBruto − inss)
+    description: Salário bruto já descontado o INSS (taxableBase = grossSalary − inss)
 
 output:
   irrf:
@@ -70,8 +70,8 @@ test_cases:
 
 design:
   - implementar como classe stateless sem campos de instância
-  - método público: BigDecimal calcular(BigDecimal baseCalculo)
-  - algoritmo: encontrar a faixa em que baseCalculo se enquadra, aplicar (baseCalculo × aliquota) − parcelaDedutivel
+  - método público: BigDecimal calculate(BigDecimal taxableBase)
+  - algoritmo: encontrar a faixa em que taxableBase se enquadra, aplicar (taxableBase × aliquota) − parcelaDedutivel
   - usar max(resultado, ZERO) para garantir que o retorno nunca seja negativo
   - usar BigDecimal em todos os cálculos — nenhum double
 

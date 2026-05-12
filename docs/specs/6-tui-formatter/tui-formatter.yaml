@@ -1,106 +1,36 @@
 feature: tui-formatter
-description: Formata um ResultadoCalculo como um painel de caixa TUI com bordas Unicode e cores ANSI. Produz uma String multi-linha pronta para exibição no terminal. É a única classe que conhece formatação monetária e códigos ANSI.
+description: Formats a CalculationResult as a TUI box panel with Unicode borders and ANSI colors. Produces a multi-line String ready for display in the terminal. It is the only class that knows about monetary formatting and ANSI codes.
 
 tdd_cycle: 6
-package: com.pfc.tdd.calculadora.tui
+package: com.pfc.tdd.calculator.tui
 class: TuiFormatter
+type: utility
 
 rules:
-  - recebe ResultadoCalculo e retorna String formatada com bordas Unicode e ANSI
-  - formatação monetária: R$ X.XXX,XX com separador de milhar ponto e decimal vírgula
-  - cabeçalho "Resumo do Salário" em ciano (ANSI \033[36m)
-  - linhas de desconto (INSS e IRRF) em vermelho (ANSI \033[31m)
-  - linha "Salário Líquido" em verde negrito (ANSI \033[1;32m)
-  - largura interna do painel: 38 caracteres (entre as bordas verticais)
-  - reset de cor após cada linha colorida: \033[0m
-  - método formatar(ResultadoCalculo) é o único método público
-  - testes usam TestHelper.stripAnsi() para asserts de conteúdo sem checar ANSI
+  - receives CalculationResult and returns formatted String with Unicode borders and ANSI
+  - use ciano (\033[36m) for the header
+  - use red (\033[31m) for deductions (INSS, IRRF)
+  - use bold green (\033[1;32m) for the net salary
+  - currency format: R$ X.XXX,XX (dot for thousands, comma for decimals, 2 decimal places)
+  - internal panel width: fixed at 38 characters
+  - format(CalculationResult) method is the only public method
 
-panel_layout:
-  border_chars:
-    top_left: "╭"
-    top_right: "╮"
-    bottom_left: "╰"
-    bottom_right: "╯"
-    vertical: "│"
-    horizontal: "─"
-    separator_left: "├"
-    separator_right: "┤"
-    double_separator_left: "├"
-    double_separator_right: "╡"
-    double_horizontal: "═"
+inputs:
+  result:
+    type: CalculationResult
 
-  structure:
-    - "╭──────────────────────────────────────╮"
-    - "│  Resumo do Salário                   │"  # ciano
-    - "├──────────────────────────────────────┤"
-    - "│  Salário Bruto          R$ X.XXX,XX  │"
-    - "├──────────────────────────────────────┤"
-    - "│  (-) INSS                 R$ XXX,XX  │"  # vermelho
-    - "│  (-) IRRF                 R$ XXX,XX  │"  # vermelho
-    - "├══════════════════════════════════════╡"
-    - "│  Salário Líquido        R$ X.XXX,XX  │"  # verde negrito
-    - "╰──────────────────────────────────────╯"
-
-input:
-  resultado:
-    type: ResultadoCalculo
-    required: true
-    nullable: false
-    description: Resultado completo com bruto, inss, irrf e liquido
-
-output:
-  painel:
+outputs:
+  panel:
     type: String
-    nullable: false
-    description: String multi-linha com o painel formatado, bordas Unicode e ANSI
-
-ansi_codes:
-  cyan: "\033[36m"
-  red: "\033[31m"
-  green_bold: "\033[1;32m"
-  reset: "\033[0m"
-
-monetary_format:
-  locale: pt-BR
-  prefix: "R$ "
-  decimal_separator: ","
-  thousands_separator: "."
-  scale: 2
-  example: "5000.00 → R$ 5.000,00"
-
-test_cases:
-  - bruto: "5000.00"
-    inss: "509.60"
-    irrf: "479.00"
-    liquido: "4011.40"
-    expected_contains_stripped:
-      - "Resumo do Salário"
-      - "Salário Bruto"
-      - "R$ 5.000,00"
-      - "(-) INSS"
-      - "R$ 509,60"
-      - "(-) IRRF"
-      - "R$ 479,00"
-      - "Salário Líquido"
-      - "R$ 4.011,40"
-  - note: testes DEVEM usar TestHelper.stripAnsi() para remover ANSI antes de fazer asserts de texto
 
 design:
-  - TuiFormatter: stateless, sem campos de instância
-  - método público: String formatar(ResultadoCalculo resultado)
-  - extrair método privado formatarMoeda(BigDecimal valor) para DRY
-  - OC #7: formatar() ≤ 15 linhas; extrair métodos privados se crescer além disso
-  - TestHelper: classe de teste (src/test/java) com método estático stripAnsi(String) usando regex \033\[[^m]*m
-
-test_helper:
-  class: TestHelper
-  package: com.pfc.tdd.calculadora.tui
-  location: src/test/java
-  method: "static String stripAnsi(String texto)"
-  implementation: "texto.replaceAll(\"\\\\033\\\\[[^m]*m\", \"\")"
+  - implemented as a stateless class
+  - public method: String format(CalculationResult result)
+  - private method: String formatCurrency(BigDecimal value) for DRY
+  - use StringBuilder or formatted Strings to compose the lines
+  - follow OC #7: keep format() method concise, extract panel line composition to private methods if needed
 
 assumptions:
-  - a largura do painel é fixa em 38 caracteres internos — não configurável (YAGNI)
-  - a formatação monetária não usa java.util.Locale diretamente para evitar dependência de locale do sistema; formatar manualmente com String.format ou NumberFormat configurado explicitamente
-  - sem suporte a valores acima de R$ 99.999,99 nesta versão (painel não acomoda 6 dígitos de milhar — YAGNI)
+  - currency formatting is manually implemented (or via Locale.forLanguageTag("pt-BR")) to avoid system locale dependency
+  - ANSI codes are hardcoded as they are specific to the TUI requirement
+  - TestHelper.stripAnsi() must be used in tests to allow asserting content without being blocked by ANSI codes

@@ -2,24 +2,24 @@
 
 ## Descrição
 
-Formata um `ResultadoCalculo` como um painel TUI com bordas Unicode e cores ANSI. É a única classe responsável pela formatação monetária e pela composição visual do painel. Retorna uma `String` multi-linha pronta para ser impressa no terminal.
+Formata um `CalculationResult` como um painel TUI com bordas Unicode e cores ANSI. É a única classe responsável pela formatação monetária e pela composição visual do painel. Retorna uma `String` multi-linha pronta para ser impressa no terminal.
 
 ---
 
 ## Checklist de Implementação
 
 ### TestHelper (criar primeiro)
-- [ ] Criar `src/test/java/com/pfc/tdd/calculadora/tui/TestHelper.java`
-- [ ] Método estático: `static String stripAnsi(String texto)`
-- [ ] Implementação: `texto.replaceAll("\\033\\[[^m]*m", "")`
+- [ ] Criar `src/test/java/com/pfc/tdd/calculator/tui/TestHelper.java`
+- [ ] Método estático: `static String stripAnsi(String text)`
+- [ ] Implementação: `text.replaceAll("\\033\\[[^m]*m", "")`
 - [ ] Usar `TestHelper.stripAnsi()` em **todos** os asserts de texto para ignorar ANSI
 
 ### TuiFormatter
-- [ ] Criar `src/test/java/com/pfc/tdd/calculadora/tui/TuiFormatterTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculadora/tui/TuiFormatter.java` (GREEN)
+- [ ] Criar `src/test/java/com/pfc/tdd/calculator/tui/TuiFormatterTest.java` (RED)
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiFormatter.java` (GREEN)
 - [ ] Classe stateless — **sem campos de instância**
-- [ ] Método público: `String formatar(ResultadoCalculo resultado)`
-- [ ] Método privado: `String formatarMoeda(BigDecimal valor)` para evitar repetição (DRY)
+- [ ] Método público: `String format(CalculationResult result)`
+- [ ] Método privado: `String formatCurrency(BigDecimal value)` para evitar repetição (DRY)
 
 ---
 
@@ -84,7 +84,7 @@ Formata um `ResultadoCalculo` como um painel TUI com bordas Unicode e cores ANSI
 
 | Parâmetro   | Tipo              | Descrição                              |
 |-------------|-------------------|----------------------------------------|
-| `resultado` | ResultadoCalculo  | Resultado com bruto, inss, irrf, líquido |
+| `result` | CalculationResult  | Resultado com gross, inss, irrf, net |
 
 ## Output
 
@@ -96,7 +96,7 @@ Formata um `ResultadoCalculo` como um painel TUI com bordas Unicode e cores ANSI
 
 ## Casos de Teste
 
-Usar `TestHelper.stripAnsi(painel)` antes dos asserts:
+Usar `TestHelper.stripAnsi(panel)` antes dos asserts:
 
 | O painel deve conter (após strip ANSI) |
 |----------------------------------------|
@@ -116,12 +116,12 @@ Usar `TestHelper.stripAnsi(painel)` antes dos asserts:
 
 | Regra | Aplicação |
 |-------|-----------|
-| OC #7 | `formatar()` ≤ 15 linhas; extrair linhas do painel em métodos privados se necessário |
+| OC #7 | `format()` ≤ 15 linhas; extrair linhas do painel em métodos privados se necessário |
 | OC #8 | Nenhum campo de instância — stateless puro |
 
 ## DRY aplicado
 
-- `formatarMoeda(BigDecimal)` é o único lugar onde a conversão de `BigDecimal` para `"R$ X.XXX,XX"` acontece.
+- `formatCurrency(BigDecimal)` é o único lugar onde a conversão de `BigDecimal` para `"R$ X.XXX,XX"` acontece.
 - **Nenhuma** outra classe faz formatação monetária.
 
 ---

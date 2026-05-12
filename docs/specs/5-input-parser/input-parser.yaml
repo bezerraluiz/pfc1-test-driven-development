@@ -1,72 +1,51 @@
 feature: input-parser
-description: Faz o parse de uma String digitada pelo usuário em um SalarioBruto. Lança InputInvalidoException para entradas não numéricas, zero ou negativas, com mensagens amigáveis em português que são exibidas na TUI sem stack trace.
+description: Parses a String entered by the user into a GrossSalary. Throws InvalidInputException for non-numeric, zero, or negative inputs, with friendly Portuguese messages that are displayed in the TUI without a stack trace.
 
 tdd_cycle: 5
-package: com.pfc.tdd.calculadora.tui
-classes:
-  - InputParser
-  - InputInvalidoException (checked ou unchecked — ver assumptions)
+package: com.pfc.tdd.calculator.tui
+class: InputParser
+type: utility
 
 rules:
-  - entrada nula ou em branco lança InputInvalidoException
-  - entrada não numérica (ex: "abc") lança InputInvalidoException
-  - entrada com valor zero lança InputInvalidoException
-  - entrada com valor negativo lança InputInvalidoException
-  - entrada válida retorna SalarioBruto com o valor parseado
-  - aceitar vírgula como separador decimal além de ponto (ex: "3000,50" → 3000.50)
-  - não fazer trim da string antes do parse — a TUI é responsável por ler a linha do Scanner
-  - mensagem da exception deve ser legível pelo usuário final (sem jargão técnico)
+  - input string must be trimmed before calling parse
+  - accept both dot (.) and comma (,) as decimal separators
+  - empty or blank input throws InvalidInputException
+  - non-numeric input throws InvalidInputException
+  - zero or negative input throws InvalidInputException
+  - valid input returns GrossSalary with the parsed value
 
-input:
-  texto:
+inputs:
+  text:
     type: String
     required: true
-    nullable: false
-    description: String lida do Scanner na TUI
 
-output:
-  salarioBruto:
-    type: SalarioBruto
-    nullable: false
-    description: Wrapper de valor construído a partir da String parseada
+outputs:
+  grossSalary:
+    type: GrossSalary
 
-errors:
-  - exception: InputInvalidoException
-    trigger: texto não numérico (NumberFormatException ao parsear)
-    message: "Entrada inválida. Digite um número válido, como 3000 ou 3000,50."
-  - exception: InputInvalidoException
-    trigger: valor zero ou negativo (após parse)
-    message: "O salário deve ser maior que zero."
+exceptions:
+  InvalidInputException:
+    type: unchecked
+    messages:
+      numeric_error: "Entrada inválida. Digite um número válido, como 3000 ou 3000,50."
+      domain_error: "O salário deve ser maior que zero."
 
 test_cases:
   - input: "3000"
-    expected: SalarioBruto(3000.00)
+    expected: GrossSalary(3000.00)
   - input: "3000.50"
-    expected: SalarioBruto(3000.50)
+    expected: GrossSalary(3000.50)
   - input: "3000,50"
-    expected: SalarioBruto(3000.50)
+    expected: GrossSalary(3000.50)
   - input: "abc"
-    expected: throws InputInvalidoException (não numérico)
+    expected: throws InvalidInputException
   - input: "0"
-    expected: throws InputInvalidoException (zero)
-  - input: "-100"
-    expected: throws InputInvalidoException (negativo)
-  - input: ""
-    expected: throws InputInvalidoException (em branco)
+    expected: throws InvalidInputException
 
 design:
-  - InputParser: classe stateless sem campos de instância
-  - método público: SalarioBruto parsear(String texto)
-  - substituir vírgula por ponto antes de chamar new BigDecimal(texto)
-  - capturar NumberFormatException e relançar como InputInvalidoException
-  - capturar IllegalArgumentException do construtor canônico de SalarioBruto e relançar como InputInvalidoException
-  - OC #2: sem else — usar early throw/continue
-
-  InputInvalidoException:
-    extends: RuntimeException
-    constructor: InputInvalidoException(String mensagem)
-    note: unchecked para evitar try-catch obrigatório em TuiApp
-
-assumptions:
-  - InputInvalidoException é unchecked (extends RuntimeException) — TuiApp captura explicitamente no loop de retry
-  - o trim() da string é responsabilidade de quem chama parsear() — i.e., a TUI deve ler e trimar antes de passar
+  - implemented as a stateless class
+  - public method: GrossSalary parse(String text)
+  - use text.replace(",", ".") for normalization
+  - catch NumberFormatException and rethrow as InvalidInputException
+  - catch IllegalArgumentException from GrossSalary canonical constructor and rethrow as InvalidInputException
+  - follow OC #2: use early throw instead of if-else

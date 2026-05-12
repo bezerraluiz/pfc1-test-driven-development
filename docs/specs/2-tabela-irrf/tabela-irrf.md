@@ -74,7 +74,7 @@ Classe stateless que calcula o IRRF (Imposto de Renda Retido na Fonte) a partir 
 
 ## Regras
 
-- A base de cálculo é sempre `salarioBruto − INSS` — esta classe não recebe o salário bruto nem o INSS separadamente.
+- A base de cálculo é sempre `grossSalary − INSS` — esta classe não recebe o salário bruto nem o INSS separadamente.
 - Resultado nunca negativo: se `base × aliquota − deducao < 0`, retornar `BigDecimal.ZERO`.
 - Nenhuma dedução por dependentes — fora do escopo (YAGNI).
 - **Sem arredondamento intermediário** — arredondar apenas o resultado final.

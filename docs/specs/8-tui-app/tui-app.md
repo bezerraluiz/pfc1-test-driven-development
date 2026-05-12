@@ -9,16 +9,16 @@ Ponto de entrada da TUI interativa. Orquestra o fluxo completo: exibe banner, so
 ## Checklist de Implementação
 
 ### TuiApp
-- [ ] Criar `src/test/java/com/pfc/tdd/calculadora/tui/TuiAppTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculadora/tui/TuiApp.java` (GREEN)
-- [ ] Construtor: `TuiApp(SalarioLiquidoCalculator calculator, InputParser parser)`
+- [ ] Criar `src/test/java/com/pfc/tdd/calculator/tui/TuiAppTest.java` (RED)
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiApp.java` (GREEN)
+- [ ] Construtor: `TuiApp(SalaryNetCalculator calculator, InputParser parser)`
 - [ ] Exatamente **2 campos**: `calculator` e `parser` (OC #8)
-- [ ] Método público: `void executar(Scanner scanner, PrintStream saida)`
-- [ ] `executar()` ≤ 20 linhas (OC #7) — extrair `exibirBanner()` e `solicitarSalario()` se necessário
+- [ ] Método público: `void execute(Scanner scanner, PrintStream output)`
+- [ ] `execute()` ≤ 20 linhas (OC #7) — extrair `displayBanner()` e `promptForSalary()` se necessário
 
 ### TddApplication.java (modificar — não reescrever)
 - [ ] Adicionar `implements CommandLineRunner` ou `@Bean CommandLineRunner`
-- [ ] Uma linha de delegação: criar `TuiApp` e chamar `executar(new Scanner(System.in), System.out)`
+- [ ] Uma linha de delegação: criar `TuiApp` e chamar `execute(new Scanner(System.`in`), System.out)`
 
 ---
 
@@ -27,33 +27,33 @@ Ponto de entrada da TUI interativa. Orquestra o fluxo completo: exibe banner, so
 ### Construtor
 
 ```java
-public TuiApp(SalarioLiquidoCalculator calculator, InputParser parser)
+public TuiApp(SalaryNetCalculator calculator, InputParser parser)
 ```
 
 ### Campos (OC #8 — exatamente 2)
 
 ```java
-private final SalarioLiquidoCalculator calculator;
+private final SalaryNetCalculator calculator;
 private final InputParser parser;
 ```
 
-### Método executar
+### Método execute
 
 ```java
-public void executar(Scanner scanner, PrintStream saida) {
-    exibirBanner(saida);
+public void execute(Scanner scanner, PrintStream output) {
+    displayBanner(output);
     while (true) {
-        saida.print(" Digite o salário bruto (R$): ");
-        String entrada = scanner.nextLine().trim();
-        SalarioBruto salarioBruto;
+        output.print(" Digite o salário bruto (R$): ");
+        String input = scanner.nextLine().trim();
+        GrossSalary grossSalary;
         try {
-            salarioBruto = parser.parsear(entrada);
-        } catch (InputInvalidoException e) {
-            saida.println(" " + e.getMessage());
+            grossSalary = parser.parse(input);
+        } catch (InvalidInputException e) {
+            output.println(" " + e.getMessage());
             continue;
         }
-        ResultadoCalculo resultado = calcularComAnimacao(salarioBruto, saida);
-        saida.println(new TuiFormatter().formatar(resultado));
+        CalculationResult result = calculateWithAnimation(grossSalary, output);
+        output.println(new TuiFormatter().format(result));
         break;
     }
 }
@@ -74,15 +74,15 @@ public void executar(Scanner scanner, PrintStream saida) {
 
 ## Fluxo de Execução
 
-1. Exibir banner via `exibirBanner(saida)`
+1. Exibir banner via `displayBanner(output)`
 2. Entrar em loop `while (true)`
 3. Exibir prompt: `" Digite o salário bruto (R$): "`
 4. Ler linha do `Scanner` e fazer `.trim()`
-5. Tentar `parser.parsear(entrada)`:
-   - `InputInvalidoException` → imprimir `e.getMessage()` → `continue` (OC #2 — sem `else`)
-6. Se `saida == System.out` → criar `TuiAnimator("Calculando...", saida)`, `start()`, calcular, `stop()`
+5. Tentar `parser.parse(input)`:
+   - `InvalidInputException` → imprimir `e.getMessage()` → `continue` (OC #2 — sem `else`)
+6. Se `output == System.out` → criar `TuiAnimator("Calculando...", output)`, `start()`, calcular, `stop()`
 7. Caso contrário → calcular diretamente (sem animação — evita flaky em testes)
-8. Exibir painel: `saida.println(new TuiFormatter().formatar(resultado))`
+8. Exibir painel: `output.println(new TuiFormatter().format(result))`
 9. `break` — encerra após primeiro resultado bem-sucedido
 
 ---
@@ -91,15 +91,15 @@ public void executar(Scanner scanner, PrintStream saida) {
 
 | Parâmetro    | Tipo                      | Descrição                                        |
 |--------------|---------------------------|--------------------------------------------------|
-| `calculator` | SalarioLiquidoCalculator  | Calculador do salário líquido                   |
+| `calculator` | SalaryNetCalculator  | Calculador do salário líquido                   |
 | `parser`     | InputParser               | Parser de entrada do usuário                    |
 
-## Input (executar)
+## Input (execute)
 
 | Parâmetro | Tipo        | Descrição                                                 |
 |-----------|-------------|-----------------------------------------------------------|
 | `scanner` | Scanner     | Leitura da entrada; criado e fechado pelo chamador        |
-| `saida`   | PrintStream | Destino do output; `System.out` em produção               |
+| `output`   | PrintStream | Destino do output; `System.out` em produção               |
 
 ---
 
@@ -110,9 +110,9 @@ Nos testes, criar `Scanner` sobre `StringReader` ou `ByteArrayInputStream`:
 ```java
 Scanner scanner = new Scanner("3000\n");
 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-PrintStream saida = new PrintStream(baos);
-new TuiApp(calculator, parser).executar(scanner, saida);
-String output = baos.toString();
+PrintStream output = new PrintStream(baos);
+new TuiApp(calculator, parser).execute(scanner, output);
+String result = baos.toString();
 ```
 
 | # | Entrada simulada     | Output deve conter                            | Output não deve conter |
@@ -127,10 +127,10 @@ String output = baos.toString();
 
 ## Regras
 
-- **Sem stack trace** ao usuário — capturar `InputInvalidoException` e exibir apenas `e.getMessage()`.
+- **Sem stack trace** ao usuário — capturar `InvalidInputException` e exibir apenas `e.getMessage()`.
 - **Sem `else`** no loop de retry — usar `continue` após erro (OC #2).
 - Toda formatação delegada ao `TuiFormatter` — `TuiApp` não formata texto monetário.
-- Animação pulada quando `saida != System.out` — sem risco de flaky por `Thread.sleep` nos testes.
+- Animação pulada quando `output != System.out` — sem risco de flaky por `Thread.sleep` nos testes.
 
 ---
 
@@ -148,8 +148,8 @@ public class TddApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        var calculator = new SalarioLiquidoCalculator(new TabelaInss(), new TabelaIrrf());
-        new TuiApp(calculator, new InputParser()).executar(new Scanner(System.in), System.out);
+        var calculator = new SalaryNetCalculator(new InssTable(), new IrrfTable());
+        new TuiApp(calculator, new InputParser()).execute(new Scanner(System.in), System.out);
     }
 }
 ```
@@ -160,9 +160,9 @@ public class TddApplication implements CommandLineRunner {
 
 | Regra | Aplicação |
 |-------|-----------|
-| OC #2 | Loop de retry sem `else` — captura `InputInvalidoException` e faz `continue` |
-| OC #5 | Cada resultado intermediário nomeado: `entrada`, `salarioBruto`, `resultado` |
-| OC #7 | `executar()` ≤ 20 linhas; extrair `exibirBanner()` e método de animação |
+| OC #2 | Loop de retry sem `else` — captura `InvalidInputException` e faz `continue` |
+| OC #5 | Cada resultado intermediário nomeado: `input`, `grossSalary`, `result` |
+| OC #7 | `execute()` ≤ 20 linhas; extrair `displayBanner()` e método de animação |
 | OC #8 | Exatamente 2 campos: `calculator` + `parser` |
 | YAGNI | Sem flag `--help`, sem modo batch, sem argumentos CLI |
 | KISS  | Sem Spring IoC para `TuiApp` — instanciado manualmente |
