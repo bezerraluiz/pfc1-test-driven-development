@@ -9,16 +9,16 @@ Ponto de entrada da TUI interativa. Orquestra o fluxo completo: exibe banner, so
 ## Checklist de Implementação
 
 ### TuiApp
-- [ ] Criar `src/test/java/com/pfc/tdd/calculator/tui/TuiAppTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiApp.java` (GREEN)
-- [ ] Construtor: `TuiApp(SalaryNetCalculator calculator, InputParser parser)`
-- [ ] Exatamente **2 campos**: `calculator` e `parser` (OC #8)
-- [ ] Método público: `void execute(Scanner scanner, PrintStream output)`
-- [ ] `execute()` ≤ 20 linhas (OC #7) — extrair `displayBanner()` e `promptForSalary()` se necessário
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/tui/TuiAppTest.java` (RED)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiApp.java` (GREEN)
+- [x] Construtor: `TuiApp(SalaryNetCalculator calculator, InputParser parser)`
+- [x] Exatamente **2 campos**: `calculator` e `parser` (OC #8)
+- [x] Método público: `void execute(Scanner scanner, PrintStream output)`
+- [x] `execute()` ≤ 20 linhas (OC #7) — `displayBanner()` e `calculateWithAnimation()` extraídos
 
 ### TddApplication.java (modificar — não reescrever)
-- [ ] Adicionar `implements CommandLineRunner` ou `@Bean CommandLineRunner`
-- [ ] Uma linha de delegação: criar `TuiApp` e chamar `execute(new Scanner(System.in), System.out)`
+- [x] Delegação ao TuiApp via `main()` após `SpringApplication.run()` — evita CommandLineRunner que trava `@SpringBootTest` no Spring Boot 4 (sem @MockBean disponível)
+- [x] Uma linha de delegação: criar `TuiApp` e chamar `execute(new Scanner(System.in), System.out)`
 
 ---
 
