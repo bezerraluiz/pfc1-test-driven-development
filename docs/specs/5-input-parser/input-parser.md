@@ -9,23 +9,23 @@ Converte a string digitada pelo usuário em um `GrossSalary`. Lança `InvalidInp
 ## Checklist de Implementação
 
 ### InvalidInputException
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/InvalidInputException.java`
-- [ ] Estender `RuntimeException`
-- [ ] Construtor único: `InvalidInputException(String mensagem)`
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/InvalidInputException.java`
+- [x] Estender `RuntimeException`
+- [x] Construtor único: `InvalidInputException(String mensagem)`
 
 ### InputParser
-- [ ] Criar `src/test/java/com/pfc/tdd/calculator/tui/InputParserTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/InputParser.java` (GREEN)
-- [ ] Classe stateless — **sem campos de instância**
-- [ ] Método público: `GrossSalary parse(String text)`
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/tui/InputParserTest.java` (RED)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/InputParser.java` (GREEN)
+- [x] Classe stateless — **sem campos de instância**
+- [x] Método público: `GrossSalary parse(String text)`
 
 ### Algoritmo do método parse
-- [ ] Se `text` for nulo, vazio ou em branco → lançar `InvalidInputException`
-- [ ] Substituir vírgula por ponto: `text.replace(",", ".")`
-- [ ] Tentar `new BigDecimal(text)` — capturar `NumberFormatException` → lançar `InvalidInputException` com mensagem de entrada inválida
-- [ ] Tentar criar `new GrossSalary(valor)` — capturar `IllegalArgumentException` → lançar `InvalidInputException` com mensagem de salário inválido
-- [ ] Retornar o `GrossSalary` criado
-- [ ] **Sem `else`** — usar early throw (OC #2)
+- [x] Se `text` for nulo, vazio ou em branco → lançar `InvalidInputException`
+- [x] Substituir vírgula por ponto: `text.replace(",", ".")`
+- [x] Tentar `new BigDecimal(text)` — capturar `NumberFormatException` → lançar `InvalidInputException` com mensagem de entrada inválida
+- [x] Tentar criar `new GrossSalary(valor)` — capturar `IllegalArgumentException` → lançar `InvalidInputException` com mensagem de salário inválido
+- [x] Retornar o `GrossSalary` criado
+- [x] **Sem `else`** — usar early throw (OC #2)
 
 ---
 
