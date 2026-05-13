@@ -9,15 +9,15 @@ Define os tipos de valor imutáveis do domínio. `GrossSalary` encapsula e valid
 ## Checklist de Implementação
 
 ### GrossSalary
-- [ ] Criar `src/test/java/com/pfc/tdd/calculator/domain/GrossSalaryTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/GrossSalary.java` como `record` (GREEN)
-- [ ] Adicionar construtor canônico com validação: lançar `IllegalArgumentException` se `value <= 0`
-- [ ] **Nunca usar `double`** — campo é `BigDecimal`
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/domain/GrossSalaryTest.java` (RED)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/GrossSalary.java` como `record` (GREEN)
+- [x] Adicionar construtor canônico com validação: lançar `IllegalArgumentException` se `value <= 0`
+- [x] **Nunca usar `double`** — campo é `BigDecimal`
 
 ### CalculationResult
-- [ ] Criar `src/test/java/com/pfc/tdd/calculator/domain/CalculationResultTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/CalculationResult.java` como `record` (GREEN)
-- [ ] Quatro campos: `gross`, `inss`, `irrf`, `net` — todos `BigDecimal`, não nulos
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/domain/CalculationResultTest.java` (RED)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/CalculationResult.java` como `record` (GREEN)
+- [x] Quatro campos: `gross`, `inss`, `irrf`, `net` — todos `BigDecimal`, não nulos
 
 ---
 
