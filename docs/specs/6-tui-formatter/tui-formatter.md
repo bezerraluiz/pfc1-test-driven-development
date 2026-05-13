@@ -9,17 +9,17 @@ Formata um `CalculationResult` como um painel TUI com bordas Unicode e cores ANS
 ## Checklist de Implementação
 
 ### TestHelper (criar primeiro)
-- [ ] Criar `src/test/java/com/pfc/tdd/calculator/tui/TestHelper.java`
-- [ ] Método estático: `static String stripAnsi(String text)`
-- [ ] Implementação: `text.replaceAll("\\033\\[[^m]*m", "")`
-- [ ] Usar `TestHelper.stripAnsi()` em **todos** os asserts de texto para ignorar ANSI
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/tui/TestHelper.java`
+- [x] Método estático: `static String stripAnsi(String text)`
+- [x] Implementação: `text.replaceAll("\\033\\[[^m]*m", "")`
+- [x] Usar `TestHelper.stripAnsi()` em **todos** os asserts de texto para ignorar ANSI
 
 ### TuiFormatter
-- [ ] Criar `src/test/java/com/pfc/tdd/calculator/tui/TuiFormatterTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiFormatter.java` (GREEN)
-- [ ] Classe stateless — **sem campos de instância**
-- [ ] Método público: `String format(CalculationResult result)`
-- [ ] Método privado: `String formatCurrency(BigDecimal value)` para evitar repetição (DRY)
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/tui/TuiFormatterTest.java` (RED)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiFormatter.java` (GREEN)
+- [x] Classe stateless — **sem campos de instância**
+- [x] Método público: `String format(CalculationResult result)`
+- [x] Método privado: `String formatCurrency(BigDecimal value)` para evitar repetição (DRY)
 
 ---
 
