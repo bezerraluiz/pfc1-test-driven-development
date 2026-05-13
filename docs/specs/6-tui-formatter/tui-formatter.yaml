@@ -1,36 +1,60 @@
 feature: tui-formatter
-description: Formata um CalculationResult como um painel de caixa TUI com bordas Unicode e cores ANSI. Produz uma String multi-linha pronta para exibição no terminal. É a única classe que conhece formatação monetária e códigos ANSI.
+description: Formata um CalculationResult como painel TUI com bordas Unicode, cores ANSI e formatação monetária brasileira (ponto como separador de milhar, vírgula como separador decimal).
 
 tdd_cycle: 6
 package: com.pfc.tdd.calculator.tui
 class: TuiFormatter
-type: utility
+type: stateless-service
 
 rules:
-  - recebe CalculationResult e retorna String formatada com bordas Unicode e ANSI
-  - usar ciano (\033[36m) para o cabeçalho
-  - usar vermelho (\033[31m) para descontos (INSS, IRRF)
-  - usar verde negrito (\033[1;32m) para o salário líquido
-  - formato monetário: R$ X.XXX,XX (ponto para milhar, vírgula para decimal, 2 casas)
-  - largura interna do painel: fixa em 38 caracteres
-  - método format(CalculationResult) é o único método público
+  - formatação monetária usa ponto como separador de milhar e vírgula como decimal (ex: R$ 5.000,00)
+  - prefixo monetário sempre "R$ "
+  - sempre 2 casas decimais nos valores monetários
+  - cabeçalho "Resumo do Salário" em ciano (\033[36m)
+  - linhas de desconto (INSS e IRRF) em vermelho (\033[31m)
+  - linha de salário líquido em verde negrito (\033[1;32m)
+  - largura interna do painel: 38 caracteres
+  - bordas: ╭ ╮ ╰ ╯ │ ─ ├ ┤ ╡ ═
+  - método privado formatCurrency deve ser a única implementação de formatação monetária (DRY)
 
-inputs:
+input:
   result:
     type: CalculationResult
+    required: true
+    nullable: false
+    description: Resultado do cálculo com gross, inss, irrf e net
 
-outputs:
+output:
   panel:
     type: String
+    nullable: false
+    description: Painel multi-linha formatado com bordas Unicode e cores ANSI
+
+layout:
+  lines:
+    - "╭──────────────────────────────────────╮"
+    - "│  Resumo do Salário                   │   ← \033[36m ciano"
+    - "├──────────────────────────────────────┤"
+    - "│  Salário Bruto          R$ 5.000,00  │"
+    - "├──────────────────────────────────────┤"
+    - "│  (-) INSS                 R$ 501,51  │   ← \033[31m vermelho"
+    - "│  (-) IRRF                 R$ 487,09  │   ← \033[31m vermelho"
+    - "├══════════════════════════════════════╡"
+    - "│  Salário Líquido        R$ 4.011,40  │   ← \033[1;32m verde negrito"
+    - "╰──────────────────────────────────────╯"
 
 design:
-  - implementar como classe stateless
+  - classe stateless — sem campos de instância
   - método público: String format(CalculationResult result)
-  - método privado: String formatCurrency(BigDecimal value) para DRY
-  - usar StringBuilder ou Strings formatadas para compor as linhas
-  - seguir OC #7: manter método format() conciso, extrair composição de linhas para métodos privados se necessário
+  - método privado: String formatCurrency(BigDecimal value) — única implementação de formatação monetária (DRY)
+  - usar NumberFormat ou String.format para formatação com Locale pt-BR
+
+test_helper:
+  class: TestHelper
+  method: "static String stripAnsi(String text)"
+  implementation: "text.replaceAll(\"\\\\033\\\\[[^m]*m\", \"\")"
+  purpose: remover códigos ANSI para facilitar assertions nos testes
 
 assumptions:
-  - formatação monetária é feita manualmente (ou via Locale pt-BR) para evitar dependência de locale do sistema
-  - códigos ANSI são hardcoded por serem específicos do requisito de TUI
-  - TestHelper.stripAnsi() deve ser usado em testes para permitir assert de conteúdo sem ser bloqueado por códigos ANSI
+  - terminal com suporte a UTF-8 e ANSI; sem suporte, bordas e cores não renderizam corretamente
+  - valores acima de R$ 99.999,99 podem desalinhar o painel (não suportado)

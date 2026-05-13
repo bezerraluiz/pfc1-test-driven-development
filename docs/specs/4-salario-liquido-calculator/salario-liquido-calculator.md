@@ -1,75 +1,73 @@
-# SalaryNetCalculator — Ciclo TDD 4
+# SalaryNetCalculator — Ciclo 4
 
 ## Descrição
 
-Orquestra o cálculo completo do salário líquido. Recebe um `GrossSalary`, delega o cálculo do INSS para `InssTable` e do IRRF para `IrrfTable`, e retorna um `CalculationResult` com os quatro valores. É o único ponto de entrada da lógica de negócio.
+Orquestra o cálculo completo do salário líquido. Recebe um `GrossSalary` validado, delega o cálculo de INSS para `InssTable` e o cálculo de IRRF para `IrrfTable` (usando como base o bruto menos o INSS), e retorna um `CalculationResult` com todos os valores preenchidos.
 
 ---
 
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [x] Criar `src/test/java/com/pfc/tdd/calculator/domain/SalaryNetCalculatorTest.java` (RED)
-- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/SalaryNetCalculator.java` (GREEN)
-- [x] Construtor: `SalaryNetCalculator(InssTable inssTable, IrrfTable irrfTable)`
-- [x] Exatamente **2 campos de instância**: `inssTable` e `irrfTable` (OC #8)
-- [x] Nos testes: instanciar `InssTable` e `IrrfTable` reais — **sem mock**
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/SalaryNetCalculator.java`
+- [ ] Construtor com dois parâmetros: `SalaryNetCalculator(InssTable inssTable, IrrfTable irrfTable)`
+- [ ] Exatamente 2 campos de instância: `inssTable` e `irrfTable` (OC #8)
 
 ### Método calculate
-- [x] Assinatura: `CalculationResult calculate(GrossSalary grossSalary)`
-- [x] Nomear cada resultado intermediário (OC #5):
-  - `BigDecimal inss = inssTable.calculate(grossSalary.value())`
-  - `BigDecimal taxableBase = grossSalary.value().subtract(inss)`
-  - `BigDecimal irrf = irrfTable.calculate(taxableBase)`
-  - `BigDecimal net = grossSalary.value().subtract(inss).subtract(irrf)`
-- [x] Retornar `new CalculationResult(grossSalary.value(), inss, irrf, net)`
-- [x] Método ≤ 7 linhas (OC #7)
+- [ ] Assinatura: `public CalculationResult calculate(GrossSalary grossSalary)`
+- [ ] Passo 1: `var inss = inssTable.calculate(grossSalary.value())`
+- [ ] Passo 2: `var taxableBase = grossSalary.value().subtract(inss)`
+- [ ] Passo 3: `var irrf = irrfTable.calculate(taxableBase)`
+- [ ] Passo 4: `var net = grossSalary.value().subtract(inss).subtract(irrf)`
+- [ ] Passo 5: `return new CalculationResult(grossSalary.value(), inss, irrf, net)`
+- [ ] Método ≤ 7 linhas (OC #7)
 
 ---
 
 ## Input
 
-| Parâmetro       | Tipo          | Descrição                                      |
-|-----------------|---------------|------------------------------------------------|
-| `grossSalary`  | GrossSalary  | Wrapper de valor já validado — nunca nulo      |
+| Parâmetro     | Tipo        | Descrição                                          |
+|---------------|-------------|----------------------------------------------------|
+| `grossSalary` | GrossSalary | Salário bruto encapsulado e validado (`value > 0`) |
 
 ## Output
 
-| Campo     | Tipo       | Origem                               |
-|-----------|------------|--------------------------------------|
-| `gross`   | BigDecimal | `grossSalary.value()`               |
-| `inss`    | BigDecimal | `InssTable.calculate(gross)`         |
-| `irrf`    | BigDecimal | `IrrfTable.calculate(gross − inss)`  |
-| `net`     | BigDecimal | `gross − inss − irrf`                |
+| Campo   | Tipo       | Descrição                          |
+|---------|------------|------------------------------------|
+| `gross` | BigDecimal | Salário bruto original             |
+| `inss`  | BigDecimal | Contribuição INSS calculada        |
+| `irrf`  | BigDecimal | IRRF calculado sobre `bruto−INSS`  |
+| `net`   | BigDecimal | Salário líquido (`gross−inss−irrf`)|
 
 ---
 
 ## Casos de Teste
 
-| Salário Bruto   | INSS Esperado | IRRF Esperado | Líquido Esperado |
-|-----------------|--------------|--------------|-----------------|
-| R$ 1.500,00     | R$ 112,50    | R$ 0,00      | R$ 1.387,50     |
-| R$ 3.000,00     | R$ 253,41    | a confirmar  | a confirmar     |
-| R$ 5.000,00     | R$ 509,60    | R$ 479,00    | R$ 4.011,40     |
-
-> Confirmar os valores de IRRF com a tabela oficial de 2026 antes de escrever os testes.
+| Salário Bruto | INSS Esperado | IRRF Esperado | Líquido Esperado | Observação          |
+|---------------|---------------|---------------|------------------|---------------------|
+| R$ 1.500,00   | R$ 112,50     | R$ 0,00       | R$ 1.387,50      | Isento de IRRF      |
+| R$ 5.000,00   | R$ 501,51     | R$ 487,09     | R$ 4.011,40      | Referência principal |
 
 ---
 
-## Fluxo de Cálculo (R$ 5.000,00)
+## Fluxo de Cálculo
 
-1. `inss = InssTable.calculate(5000.00)` → R$ 509,60
-2. `taxableBase = 5000.00 − 509.60` → R$ 4.490,40
-3. `irrf = IrrfTable.calculate(4490.40)` → R$ 479,00 (confirmar)
-4. `net = 5000.00 − 509.60 − 479.00` → **R$ 4.011,40**
+1. `inss = inssTable.calculate(grossSalary.value())`
+2. `taxableBase = grossSalary.value() − inss`
+3. `irrf = irrfTable.calculate(taxableBase)`
+4. `net = grossSalary.value() − inss − irrf`
+5. `return CalculationResult(gross, inss, irrf, net)`
+
+> **Atenção:** a base do IRRF é sempre `bruto − INSS`, nunca o bruto direto.
 
 ---
 
 ## Regras
 
-- Não revalida o valor do salário — `GrossSalary` já garante que é positivo.
-- Não instancia `InssTable` ou `IrrfTable` internamente — recebe via construtor.
-- Resultados intermediários devem ter nomes descritivos (OC #5).
+- O IRRF é calculado sobre `bruto − INSS` — nunca sobre o bruto diretamente.
+- Exatamente 2 campos de instância (`inssTable`, `irrfTable`).
+- Método `calculate()` com no máximo 7 linhas.
+- Sem mocks em testes — usar instâncias reais de `InssTable` e `IrrfTable`.
 
 ---
 
@@ -77,13 +75,13 @@ Orquestra o cálculo completo do salário líquido. Recebe um `GrossSalary`, del
 
 | Regra | Aplicação |
 |-------|-----------|
-| OC #5 | Cada resultado intermediário tem nome: `inss`, `taxableBase`, `irrf`, `net` |
+| OC #5 | Nomes descritivos: `taxableBase`, `inssTable`, `irrfTable` |
 | OC #7 | `calculate()` ≤ 7 linhas |
-| OC #8 | Exatamente 2 campos: `inssTable` e `irrfTable` |
+| OC #8 | Exatamente 2 campos de instância |
 
 ---
 
 ## Suposições
 
-- `InssTable` e `IrrfTable` são stateless — pode criar uma única instância em testes sem efeitos colaterais.
-- Nos testes, usar instâncias reais das tabelas (não mocks) — confirma integração entre os ciclos.
+- `InssTable` e `IrrfTable` são stateless e podem ser compartilhadas sem risco.
+- `GrossSalary` já foi validado pelo `InputParser` antes de chegar aqui.

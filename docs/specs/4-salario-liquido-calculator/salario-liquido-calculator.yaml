@@ -1,5 +1,5 @@
-feature: salary-net-calculator
-description: Orquestra o cálculo do salário líquido a partir de um GrossSalary, delegando para InssTable e IrrfTable, e retornando um CalculationResult com os quatro valores. É o ponto de entrada da lógica de negócio da calculadora.
+feature: salario-liquido-calculator
+description: Orquestra o cálculo completo do salário líquido. Recebe um GrossSalary, delega o cálculo de INSS para InssTable e o de IRRF para IrrfTable (sobre a base tributável), e retorna um CalculationResult com todos os valores.
 
 tdd_cycle: 4
 package: com.pfc.tdd.calculator.domain
@@ -7,35 +7,55 @@ class: SalaryNetCalculator
 type: service
 
 rules:
-  - recebe GrossSalary (já validado) — não revalida o valor do salário
-  - calcula INSS chamando InssTable.calculate(grossSalary.value())
-  - calcula a base do IRRF: taxableBase = grossSalary.value() − inss
-  - calcula IRRF chamando IrrfTable.calculate(taxableBase)
-  - calcula salário líquido: net = grossSalary.value() − inss − irrf
-  - retorna CalculationResult com os quatro valores
+  - inss é calculado sobre o salário bruto via InssTable
+  - base tributável do IRRF é sempre (bruto − inss) — nunca o bruto direto
+  - irrf é calculado sobre a base tributável via IrrfTable
+  - salário líquido é (bruto − inss − irrf)
+  - exatamente 2 campos de instância: inssTable e irrfTable (OC #8)
+  - método calculate deve ter no máximo 7 linhas (OC #7)
 
-inputs:
+constructor:
+  params:
+    - name: inssTable
+      type: InssTable
+    - name: irrfTable
+      type: IrrfTable
+
+input:
   grossSalary:
     type: GrossSalary
     required: true
     nullable: false
+    description: Salário bruto encapsulado e validado
 
-outputs:
-  calculationResult:
+output:
+  result:
     type: CalculationResult
+    nullable: false
     fields:
-      gross: valor de grossSalary.value()
-      inss: valor de InssTable.calculate()
-      irrf: valor de IrrfTable.calculate()
-      net: resultado de gross − inss − irrf
+      - gross: BigDecimal (grossSalary.value())
+      - inss: BigDecimal (calculado por InssTable)
+      - irrf: BigDecimal (calculado por IrrfTable sobre base tributável)
+      - net: BigDecimal (gross − inss − irrf)
+
+test_cases:
+  - input: "1500.00"
+    expected_inss: "112.50"
+    expected_irrf: "0.00"
+    expected_net: "1387.50"
+    note: abaixo da isenção IRRF
+  - input: "5000.00"
+    expected_inss: "501.51"
+    expected_irrf: "487.09"
+    expected_net: "4011.40"
+    note: referência principal
 
 design:
-  - implementar com injeção de dependência via construtor
-  - dependências: InssTable, IrrfTable
-  - método público: CalculationResult calculate(GrossSalary grossSalary)
-  - seguir OC #5: nomear todos os resultados intermediários (inss, taxableBase, irrf, net)
-  - seguir OC #8: exatamente 2 campos de instância (inssTable, irrfTable)
+  - receber dependências via construtor (sem DI automática do Spring)
+  - método: CalculationResult calculate(GrossSalary grossSalary)
+  - fluxo: inss → taxableBase → irrf → net → return CalculationResult(...)
+  - sem mocks em testes — usar instâncias reais de InssTable e IrrfTable
 
 assumptions:
-  - InssTable e IrrfTable são stateless e podem ser instanciados como objetos reais em testes
-  - Sem uso de mocks nos testes deste ciclo — teste de integração entre componentes do domínio
+  - InssTable e IrrfTable são stateless e podem ser reutilizadas sem estado compartilhado
+  - GrossSalary já foi validado antes de chegar a este método

@@ -1,74 +1,73 @@
-# InputParser + InvalidInputException — Ciclo TDD 5
+# InputParser + InvalidInputException — Ciclo 5
 
 ## Descrição
 
-Converte a string digitada pelo usuário em um `GrossSalary`. Lança `InvalidInputException` (unchecked) para entradas não numéricas, zero ou negativas, com mensagens em português que a TUI exibe diretamente ao usuário — sem stack trace visível.
+`InputParser` converte a string digitada pelo usuário em um `GrossSalary` válido. Aceita vírgula como separador decimal. Lança `InvalidInputException` (unchecked) com mensagens em português para entradas inválidas ou valores fora do domínio. `InvalidInputException` é uma exceção simples que estende `RuntimeException`.
 
 ---
 
 ## Checklist de Implementação
 
 ### InvalidInputException
-- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/InvalidInputException.java`
-- [x] Estender `RuntimeException`
-- [x] Construtor único: `InvalidInputException(String mensagem)`
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/InvalidInputException.java`
+- [ ] Estender `RuntimeException` (unchecked)
+- [ ] Construtor: `public InvalidInputException(String mensagem)`
 
 ### InputParser
-- [x] Criar `src/test/java/com/pfc/tdd/calculator/tui/InputParserTest.java` (RED)
-- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/InputParser.java` (GREEN)
-- [x] Classe stateless — **sem campos de instância**
-- [x] Método público: `GrossSalary parse(String text)`
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/InputParser.java`
+- [ ] Classe stateless — sem campos de instância (OC #8)
+- [ ] Método público: `public GrossSalary parse(String text)`
 
-### Algoritmo do método parse
-- [x] Se `text` for nulo, vazio ou em branco → lançar `InvalidInputException`
-- [x] Substituir vírgula por ponto: `text.replace(",", ".")`
-- [x] Tentar `new BigDecimal(text)` — capturar `NumberFormatException` → lançar `InvalidInputException` com mensagem de entrada inválida
-- [x] Tentar criar `new GrossSalary(valor)` — capturar `IllegalArgumentException` → lançar `InvalidInputException` com mensagem de salário inválido
-- [x] Retornar o `GrossSalary` criado
-- [x] **Sem `else`** — usar early throw (OC #2)
+### Algoritmo de parse (sem else — OC #2)
+- [ ] Se `text == null` ou `text.isBlank()` → lançar `InvalidInputException` com mensagem de entrada inválida
+- [ ] Substituir `,` por `.` para aceitar vírgula decimal: `text.replace(",", ".")`
+- [ ] Tentar `new BigDecimal(text)` — se lançar `NumberFormatException` → lançar `InvalidInputException` com mensagem de entrada inválida
+- [ ] Tentar `new GrossSalary(value)` — se lançar `IllegalArgumentException` → lançar `InvalidInputException` com mensagem de salário inválido
+- [ ] Retornar `GrossSalary`
 
 ---
 
 ## Input
 
-| Parâmetro | Tipo   | Descrição                                          |
-|-----------|--------|----------------------------------------------------|
-| `text`    | String | String lida do Scanner; quem chama deve fazer trim |
+| Parâmetro | Tipo   | Aceita | Descrição                             |
+|-----------|--------|--------|---------------------------------------|
+| `text`    | String | nulo, vazio, decimal com `,` ou `.` | Texto digitado pelo usuário |
 
 ## Output
 
-| Tipo          | Descrição                                                      |
-|---------------|----------------------------------------------------------------|
-| `GrossSalary` | Record com o valor parseado, sempre positivo                 |
+| Campo        | Tipo        | Descrição                         |
+|--------------|-------------|-----------------------------------|
+| `grossSalary` | GrossSalary | Salário bruto validado            |
 
 ## Erros
 
-| Exceção                  | Trigger                                    | Mensagem ao usuário                                          |
-|--------------------------|--------------------------------------------|--------------------------------------------------------------|
-| `InvalidInputException` | Texto não numérico ou vazio               | `"Entrada inválida. Digite um número válido, como 3000 ou 3000,50."` |
-| `InvalidInputException` | Valor zero ou negativo (após parse)       | `"O salário deve ser maior que zero."`                       |
+| Código           | Exceção               | Quando                             | Mensagem                                                      |
+|------------------|-----------------------|------------------------------------|---------------------------------------------------------------|
+| INVALID_INPUT    | InvalidInputException | Nulo, vazio, branco ou não numérico | `"Entrada inválida. Digite um número válido, como 3000 ou 3000,50."` |
+| INVALID_SALARY   | InvalidInputException | Valor zero ou negativo             | `"O salário deve ser maior que zero."`                        |
 
 ---
 
 ## Casos de Teste
 
-| Entrada      | Resultado esperado                                    |
-|--------------|-------------------------------------------------------|
-| `"3000"`     | `GrossSalary` com valor `3000.00`                    |
-| `"3000.50"`  | `GrossSalary` com valor `3000.50`                    |
-| `"3000,50"`  | `GrossSalary` com valor `3000.50` (vírgula aceita)   |
-| `"abc"`      | `InvalidInputException` — entrada inválida           |
-| `"0"`        | `InvalidInputException` — salário deve ser > zero    |
-| `"-100"`     | `InvalidInputException` — salário deve ser > zero    |
-| `""`         | `InvalidInputException` — entrada inválida           |
+| Entrada     | Resultado Esperado                        |
+|-------------|-------------------------------------------|
+| `"3000"`    | `GrossSalary(3000.00)` ✓                  |
+| `"3000.50"` | `GrossSalary(3000.50)` ✓                  |
+| `"3000,50"` | `GrossSalary(3000.50)` ✓ (vírgula aceita) |
+| `"abc"`     | `InvalidInputException` (entrada inválida) |
+| `"0"`       | `InvalidInputException` (salário inválido) |
+| `"-100"`    | `InvalidInputException` (salário inválido) |
+| `""`        | `InvalidInputException` (entrada inválida) |
 
 ---
 
 ## Regras
 
-- **Aceitar vírgula** como separador decimal: `"3000,50"` é válido.
-- **Sem stack trace** exposto ao usuário — a mensagem da exception é toda a informação que a TUI precisa.
-- `InvalidInputException` é **unchecked** — a TUI captura explicitamente, sem `throws` obrigatório.
+- **Sem `else`** — usar early throw a cada verificação (OC #2).
+- Vírgula é aceita como separador decimal (substituída por ponto antes do parse).
+- Mensagens de erro em português — nunca stack trace para o usuário.
+- Trim não é responsabilidade desta classe — feito por `TuiApp` antes de chamar `parse()`.
 
 ---
 
@@ -76,13 +75,13 @@ Converte a string digitada pelo usuário em um `GrossSalary`. Lança `InvalidInp
 
 | Regra | Aplicação |
 |-------|-----------|
-| OC #2 | `parse()` usa early throw em vez de if-else aninhado |
+| OC #2 | Early throw sem else — cada verificação encerra imediatamente se falhar |
 | OC #7 | `parse()` ≤ 8 linhas |
-| OC #8 | Nenhum campo de instância |
+| OC #8 | Nenhum campo de instância em `InputParser` |
 
 ---
 
 ## Suposições
 
-- O `trim()` da string é feito pela TUI antes de chamar `parse()` — `InputParser` não faz trim.
-- `InvalidInputException` é unchecked para simplificar o loop de retry em `TuiApp` (sem `throws` declarado no método).
+- O `trim()` é feito em `TuiApp` antes de chamar `parse()` — `InputParser` não faz trim.
+- Entrada com símbolo `R$` não é suportada — somente o número puro.

@@ -1,5 +1,5 @@
 feature: tabela-inss
-description: Calcula a contribuição progressiva do INSS a partir do salário bruto, aplicando as alíquotas por faixa conforme a Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026. Retorna o valor total do INSS arredondado para 2 casas decimais (HALF_UP).
+description: Calcula a contribuição progressiva do INSS a partir do salário bruto, aplicando as alíquotas por faixa conforme a Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026. Retorna o valor total do INSS arredondado para 2 casas decimais (HALF_EVEN).
 
 tdd_cycle: 1
 package: com.pfc.tdd.calculator.domain
@@ -49,27 +49,27 @@ output:
 test_cases:
   - input: "1500.00"
     expected_inss: "112.50"
-    note: aliquota 7,5%
+    note: apenas faixa 1 (1500 × 7,5%)
   - input: "1621.00"
     expected_inss: "121.58"
-    note: aliquota 7,5%
+    note: teto exato da faixa 1
   - input: "3000.00"
     expected_inss: "248.60"
-    note: aliquota 12%
+    note: faixas 1+2+parcial 3
   - input: "5000.00"
     expected_inss: "501.51"
-    note: aliquota 14%
+    note: faixas 1+2+3+parcial 4
   - input: "8475.55"
     expected_inss: "988.09"
-    note: aliquota 14%
+    note: teto máximo — faixas 1+2+3+4 completas
 
 design:
-  - implementar como classe sem campos de instância (stateless) ou com faixas como constante estática final
+  - implementar como classe sem campos de instância (stateless) — tabela como constante estática final
   - usar BigDecimal em todos os cálculos — nenhum double
-  - extrair a tabela como lista de InssRange (record interno ou constante) para facilitar iteração
+  - extrair tabela como constante estática (List ou array de records de faixa)
   - método público: BigDecimal calculate(BigDecimal grossSalary)
   - método privado sugerido: BigDecimal calculateInstallment(BigDecimal grossSalary, BigDecimal lowerLimit, BigDecimal upperLimit, BigDecimal aliquot)
 
 assumptions:
-  - os valores da tabela INSS 2026 devem seguir a tabela progressiva documentada nesta especificação — confirmar na publicação oficial
-  - salário maior que o teto do INSS tem INSS calculado até 8.475,55 e o excedente não é tributado
+  - os valores da tabela INSS 2026 seguem a Portaria Interministerial MPS/MF nº 13 — confirmar na publicação oficial
+  - salário maior que o teto tem INSS calculado somente até R$ 8.475,55; o excedente não é tributado

@@ -1,4 +1,4 @@
-# TabelaInss — Ciclo TDD 1
+# InssTable — Ciclo 1
 
 ## Descrição
 
@@ -9,24 +9,20 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/InssTable.java`
-- [x] Definir a tabela de faixas como constante estática (`private static final List<...>` ou array)
-- [x] Expor um único método público: `BigDecimal calculate(BigDecimal grossSalary)`
-- [x] Usar `BigDecimal` em todo cálculo — **nunca `double`**
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/InssTable.java`
+- [ ] Definir a tabela de faixas como constante estática (`private static final List<...>` ou array)
+- [ ] Expor um único método público: `BigDecimal calculate(BigDecimal grossSalary)`
+- [ ] Usar `BigDecimal` em todo cálculo — **nunca `double`**
 
 ### Algoritmo de cálculo
-- [x] Para cada faixa da tabela, calcular a parcela de INSS: `min(salario, limiteSuperior) - limiteInferior` multiplicado pela `aliquota`
-- [x] Acumular as parcelas sem arredondar cada uma individualmente
-- [x] Aplicar `setScale(2, RoundingMode.HALF_EVEN)` **apenas** no total final
-- [x] Para salário acima do teto (R$ 8.475,55), calcular somente até o teto
-
-### Testes a escrever (RED first)
-- [x] `InssTableTest.java` em `src/test/java/com/pfc/tdd/calculator/domain/`
-- [x] Cobrir cada caso da tabela abaixo
+- [ ] Para cada faixa da tabela, calcular a parcela: `min(salario, limiteSuperior) - limiteInferior` × `aliquota`
+- [ ] Acumular as parcelas sem arredondar cada uma individualmente
+- [ ] Aplicar `setScale(2, RoundingMode.HALF_EVEN)` **apenas** no total final
+- [ ] Para salário acima do teto (R$ 8.475,55), calcular somente até o teto
 
 ---
 
-## Tabela INSS 2026 (Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026)
+## Tabela INSS 2026
 
 | Faixa | Limite Superior | Alíquota |
 |-------|-----------------|----------|
@@ -35,33 +31,33 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 | 3     | R$ 4.354,27     | 12%      |
 | 4     | R$ 8.475,55     | 14%      |
 
-> **Atenção:** Confirmar os valores exatos na publicação oficial da Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026 antes de finalizar a implementação.
+> Fonte: Portaria Interministerial MPS/MF nº 13, de 9 de janeiro de 2026
 
 ---
 
 ## Input
 
-| Parâmetro      | Tipo       | Descrição                                                      |
-|----------------|------------|----------------------------------------------------------------|
+| Parâmetro     | Tipo       | Descrição                                                      |
+|---------------|------------|----------------------------------------------------------------|
 | `grossSalary` | BigDecimal | Salário bruto positivo, já validado pelo wrapper `GrossSalary` |
 
 ## Output
 
-| Campo  | Tipo       | Escala | Arredondamento | Descrição                         |
-|--------|------------|--------|----------------|-----------------------------------|
+| Campo  | Tipo       | Escala | Arredondamento | Descrição                          |
+|--------|------------|--------|----------------|------------------------------------|
 | `inss` | BigDecimal | 2      | HALF_EVEN      | Contribuição total do INSS apurada |
 
 ---
 
 ## Casos de Teste
 
-| Salário Bruto  | INSS Esperado | Observação                          |
-|----------------|--------------|--------------------------------------|
-| R$ 1.500,00    | R$ 112,50    | Apenas faixa 1 (1500 × 7,5%)        |
-| R$ 1.621,00    | R$ 121,58    | Teto exato da faixa 1               |
-| R$ 3.000,00    | R$ 248,60    | Faixas 1 + 2 + parcial 3            |
-| R$ 5.000,00    | R$ 501,51    | Faixas 1 + 2 + 3 + parcial 4        |
-| R$ 8.475,55    | R$ 988,09    | Teto máximo — faixas 1+2+3+4 completas |
+| Salário Bruto | INSS Esperado | Observação                             |
+|---------------|---------------|----------------------------------------|
+| R$ 1.500,00   | R$ 112,50     | Apenas faixa 1 (1500 × 7,5%)          |
+| R$ 1.621,00   | R$ 121,58     | Teto exato da faixa 1                  |
+| R$ 3.000,00   | R$ 248,60     | Faixas 1 + 2 + parcial 3              |
+| R$ 5.000,00   | R$ 501,51     | Faixas 1 + 2 + 3 + parcial 4          |
+| R$ 8.475,55   | R$ 988,09     | Teto máximo — faixas 1+2+3+4 completas |
 
 ---
 
@@ -97,5 +93,5 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 
 ## Suposições
 
-- Os valores da tabela INSS 2026 devem seguir a tabela progressiva documentada nesta especificação — confirmar na publicação oficial.
+- Os valores da tabela INSS 2026 seguem a Portaria Interministerial MPS/MF nº 13 — confirmar na publicação oficial antes de finalizar.
 - Salário abaixo de R$ 0,01 não chegará a esta classe (validado antes por `GrossSalary`).

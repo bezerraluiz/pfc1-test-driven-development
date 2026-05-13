@@ -1,79 +1,80 @@
-# TuiAnimator — Ciclo TDD 7
+# TuiAnimator — Ciclo 7
 
 ## Descrição
 
-Exibe um spinner Braille animado no terminal enquanto o cálculo processa. Executa em uma thread de background iniciada por `start()` e interrompida por `stop()`. Tem exatamente 2 campos de instância: a mensagem exibida e o `PrintStream` de saída.
+Exibe um spinner animado com frames Braille em uma thread de background enquanto o cálculo é processado. O `PrintStream` é injetado via construtor para permitir testes sem `System.out`. Ao parar, limpa a linha do terminal com código ANSI.
 
 ---
 
 ## Checklist de Implementação
 
-### Estrutura da classe
-- [x] Criar `src/test/java/com/pfc/tdd/calculator/tui/TuiAnimatorTest.java` (RED) — package corrigido para `calculator` (typo no doc)
-- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiAnimator.java` (GREEN)
-- [x] 2 campos finais: `private final String mensagem` e `private final PrintStream saida`; `thread` é 3° campo mutable (gap: stop() precisa da referência — OC #8 não pode ser satisfeito estritamente)
-- [x] `AtomicBoolean` eliminado — loop usa `!Thread.currentThread().isInterrupted()` (equivalente funcional)
-- [x] Classe com **no máximo 30 linhas** de código
+### Estrutura
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiAnimator.java`
+- [ ] Exatamente 2 campos de instância: `String mensagem` e `PrintStream saida` (OC #8)
+- [ ] Thread como variável local em `start()` — não como campo da classe
+
+### Construtor
+- [ ] `public TuiAnimator(String mensagem, PrintStream saida)`
+- [ ] Atribuir aos campos finais
 
 ### Método start()
-- [x] Criar `Thread` com `Runnable` inline que itera os frames
-- [x] Loop do Runnable: `while (!isInterrupted())` → imprimir `"\r" + frame + " " + mensagem` → `Thread.sleep(80)`
-- [x] Capturar `InterruptedException` no Runnable: chamar `Thread.currentThread().interrupt()` e sair do loop
-- [x] Iniciar a thread como daemon e retornar imediatamente
+- [ ] Criar `Thread` com `Runnable` que itera os frames
+- [ ] Frames Braille: `{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}`
+- [ ] Loop: `while (!Thread.currentThread().isInterrupted())`
+- [ ] Imprimir: `saida.print("\r" + frame + " " + mensagem)`
+- [ ] Dormir 80ms entre frames
+- [ ] Capturar `InterruptedException`: chamar `Thread.currentThread().interrupt()` e sair do loop
 
 ### Método stop()
-- [x] Chamar `thread.interrupt()`
-- [x] Aguardar com `thread.join(200)` (timeout de 200ms)
-- [x] Limpar a linha: `saida.print("\033[2K\r")` e `saida.flush()`
-
-### Frames do spinner
-```
-⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏
-```
-Definir como constante estática: `private static final String[] FRAMES = {"⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"};`
+- [ ] Chamar `thread.interrupt()`
+- [ ] Aguardar com `thread.join(200)` (timeout 200ms)
+- [ ] Limpar linha: `saida.print("\033[2K\r")`
+- [ ] Chamar `saida.flush()`
 
 ---
 
-## Input (Construtor)
+## Frames
 
-| Parâmetro  | Tipo        | Descrição                                                         |
-|------------|-------------|-------------------------------------------------------------------|
-| `mensagem` | String      | Texto ao lado do spinner (ex: `"Calculando..."`)                 |
-| `saida`    | PrintStream | Stream de destino; usar `System.out` em produção                 |
-
-## Métodos
-
-| Método    | Retorno | Descrição                                                         |
-|-----------|---------|-------------------------------------------------------------------|
-| `start()` | void    | Inicia a animação em thread de background; retorna imediatamente  |
-| `stop()`  | void    | Para a thread, limpa a linha e aguarda finalização (até 200ms)   |
+| Posição | Frame |
+|---------|-------|
+| 0       | ⠋     |
+| 1       | ⠙     |
+| 2       | ⠹     |
+| 3       | ⠸     |
+| 4       | ⠼     |
+| 5       | ⠴     |
+| 6       | ⠦     |
+| 7       | ⠧     |
+| 8       | ⠇     |
+| 9       | ⠏     |
 
 ---
 
-## Casos de Teste
+## Input (construtor)
 
-> Nos testes, **nunca usar `System.out`** — injetar `PrintStream` sobre `ByteArrayOutputStream`.
-
-```java
-ByteArrayOutputStream baos = new ByteArrayOutputStream();
-PrintStream ps = new PrintStream(baos);
-TuiAnimator animator = new TuiAnimator("Calculando...", ps);
-```
-
-| Cenário                              | Asserção                                    |
-|--------------------------------------|---------------------------------------------|
-| Após `start()` + 200ms + `stop()`   | Output contém `"Calculando..."`             |
-| Após `stop()`                        | Output contém `"\033[2K"` (linha limpa)     |
-| Após `stop()`                        | Nenhum novo output gerado (thread terminou) |
+| Parâmetro  | Tipo        | Descrição                               |
+|------------|-------------|-----------------------------------------|
+| `mensagem` | String      | Texto exibido ao lado do spinner        |
+| `saida`    | PrintStream | Stream de saída (injetar para testar)   |
 
 ---
 
 ## Regras
 
-- `Thread` direta — **não usar `ExecutorService`** (KISS).
-- `AtomicBoolean rodando` é **local a `start()`**, não campo da classe.
-- `stop()` deve ser seguro para chamar múltiplas vezes — se a thread já terminou, `join` retorna imediatamente.
-- O `\r` sobrescreve a linha atual sem criar nova linha — o terminal deve suportar ANSI.
+- **Nunca usar `System.out` diretamente** — sempre injetar `PrintStream`.
+- Loop usa `isInterrupted()`, não `AtomicBoolean` como campo.
+- `InterruptedException` deve relançar o interrupt: `Thread.currentThread().interrupt()`.
+- `stop()` sempre faz `flush()` após limpar a linha.
+- Classe com no máximo 30 linhas (OC #7).
+
+---
+
+## Abordagem de Teste
+
+- Criar `ByteArrayOutputStream` e embrulhar como `PrintStream`.
+- Passar como `saida` no construtor.
+- Chamar `start()`, aguardar alguns ms, chamar `stop()`.
+- Verificar que `stop()` não lança exceção e que a stream foi escrita.
 
 ---
 
@@ -81,14 +82,14 @@ TuiAnimator animator = new TuiAnimator("Calculando...", ps);
 
 | Regra | Aplicação |
 |-------|-----------|
-| OC #8 | Exatamente 2 campos: `mensagem` + `saida` — thread e AtomicBoolean são locais |
-| OC #7 | Classe ≤ 30 linhas totais |
-| KISS  | `Thread` direta, sem `ExecutorService` |
-| YAGNI | Frames não são configuráveis via construtor — nenhum teste pede isso |
+| OC #7 | Classe ≤ 30 linhas |
+| OC #8 | Exatamente 2 campos: `mensagem`, `saida` |
+| KISS  | Thread simples sem ExecutorService |
+| YAGNI | Sem suporte a múltiplos spinners simultâneos |
 
 ---
 
 ## Suposições
 
-- `TuiApp` pula a animação quando `saida != System.out` — os testes de `TuiApp` não precisam lidar com timing de threads.
-- `Thread.sleep(80)` pode ser ajustado se os testes forem flaky — usar timeout de `200ms` no join garante margem suficiente.
+- `start()` sempre é chamado antes de `stop()`.
+- Terminal suporta carriage return (`\r`) para reposição do cursor na mesma linha.

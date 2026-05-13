@@ -1,63 +1,45 @@
 feature: tui-animator
-description: Exibe uma animação de loading com spinner Braille no terminal enquanto o cálculo é processado. Usa uma Thread interna com Runnable para iterar os frames com carriage return (\r). O método stop() interrompe a thread e limpa a linha com sequência ANSI.
+description: Exibe um spinner Braille animado em uma thread de background enquanto o cálculo é processado. Pode ser iniciado e parado; ao parar, limpa a linha do terminal.
 
 tdd_cycle: 7
-package: com.pfc.tdd.calculadora.tui
+package: com.pfc.tdd.calculator.tui
 class: TuiAnimator
+type: component
 
 rules:
-  - TuiAnimator tem exatamente 2 campos de instância: String mensagem e PrintStream saida (OC #8)
-  - a Thread e o AtomicBoolean rodando são locais ao método start(), não campos
-  - os frames do spinner são: ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏ (10 frames Braille)
-  - cada frame é exibido com \r para sobrescrever a linha atual sem avançar o cursor
-  - o intervalo entre frames é de 80ms (Thread.sleep)
-  - stop() interrompe a thread (interrupt) e limpa a linha com "\033[2K\r"
-  - stop() aguarda o término da thread com join(timeout=200ms) para evitar race condition
-  - a classe deve ter no máximo 30 linhas
-  - em testes: NÃO usar System.out — injetar um ByteArrayOutputStream via PrintStream
+  - frames Braille em ordem: ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏
+  - cada frame é exibido por 80ms antes do próximo
+  - animação roda em thread separada — não bloqueia a thread principal
+  - loop da thread usa Thread.currentThread().isInterrupted() como condição de saída
+  - InterruptedException deve relançar o interrupt: Thread.currentThread().interrupt()
+  - stop() interrompe a thread, aguarda join(200ms) e limpa a linha com "\033[2K\r"
+  - exatamente 2 campos de instância: mensagem e saida (OC #8)
+  - classe com no máximo 30 linhas (OC #7)
+  - nunca usar System.out diretamente — sempre injetar PrintStream via construtor
 
-input:
-  constructor:
-    mensagem:
+constructor:
+  params:
+    - name: mensagem
       type: String
-      required: true
-      nullable: false
-      description: Texto exibido ao lado do spinner (ex: "Calculando...")
-    saida:
+    - name: saida
       type: PrintStream
-      required: true
-      nullable: false
-      description: Stream de saída para exibir a animação; use System.out em produção
 
 methods:
-  start:
-    description: Inicia a animação em background thread; retorna imediatamente
-    returns: void
-    side_effect: cria e inicia uma Thread com loop de frames
-  stop:
-    description: Para a animação, limpa a linha e aguarda a thread terminar
-    returns: void
-    side_effect: interrompe a thread, limpa linha com ANSI, join de até 200ms
+  - name: start
+    description: inicia a thread de animação
+  - name: stop
+    description: interrompe a thread, aguarda join(200ms), limpa a linha, faz flush
 
-test_cases:
-  - scenario: animação exibe mensagem
-    setup: "ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos);"
-    action: "new TuiAnimator(\"Calculando...\", ps).start(); Thread.sleep(200); animator.stop();"
-    assert: "baos.toString() contém 'Calculando...'"
-  - scenario: stop() limpa a linha
-    assert: "baos.toString() contém '\\033[2K'"
-  - scenario: nenhum frame após stop()
-    assert: "após stop(), nenhum novo output é gerado (thread terminou)"
+test_approach:
+  - injetar ByteArrayOutputStream como PrintStream
+  - nunca usar System.out nos testes
+  - verificar que stop() limpa a linha e encerra sem erro
 
 design:
-  - campos: private final String mensagem; private final PrintStream saida
-  - start(): cria AtomicBoolean rodando = new AtomicBoolean(true), cria Thread com Runnable inline, inicia thread e retorna
-  - Runnable: loop while(rodando.get()) { imprimir frame com \r; Thread.sleep(80ms); rotacionar frame }
-  - stop(): chama rodando.set(false), thread.interrupt(), thread.join(200), saida.print("\033[2K\r"), saida.flush()
-  - usar array de String ou char[] para os frames — constante estática (não campo de instância)
-  - não usar ExecutorService (KISS)
-  - classe ≤ 30 linhas
+  - thread local (variável interna, não campo) para permitir múltiplos ciclos start/stop
+  - usar interrupt() + join(200) para encerramento limpo
+  - sem ExecutorService, sem AtomicBoolean como campo
 
 assumptions:
-  - TuiAnimator é utilizado somente quando saida == System.out; a TuiApp pula a animação em testes (verificado comparando saida com System.out)
-  - Thread.sleep pode ser afetado por interrupt — capturar InterruptedException no Runnable e limpar o flag com Thread.currentThread().interrupt() antes de sair
+  - start() sempre é chamado antes de stop()
+  - terminal suporta carriage return (\r) para reposição do cursor

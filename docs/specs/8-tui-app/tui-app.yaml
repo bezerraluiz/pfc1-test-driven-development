@@ -1,94 +1,80 @@
 feature: tui-app
-description: Ponto de entrada da aplicação TUI interativa. Exibe banner de boas-vindas, solicita o salário bruto em loop, trata entradas inválidas com mensagem amigável (sem stack trace), calcula o resultado e exibe o painel formatado. Integra InputParser, SalarioLiquidoCalculator, TuiAnimator e TuiFormatter.
+description: Orquestra o fluxo completo da TUI interativa. Exibe um banner, solicita o salário em loop com tratamento de erros, exibe spinner durante o cálculo (apenas quando output == System.out) e mostra o painel de resultado. Encerra após o primeiro cálculo bem-sucedido.
 
 tdd_cycle: 8
-package: com.pfc.tdd.calculadora.tui
+package: com.pfc.tdd.calculator.tui
 class: TuiApp
-
-integration:
-  also_modify: TddApplication.java
-  change: adicionar CommandLineRunner como @Bean ou implements CommandLineRunner com delegação de 1 linha para TuiApp
+type: orchestrator
 
 rules:
-  - Scanner e PrintStream são injetados via construtor para isolar I/O nos testes (sem mock framework)
-  - método principal: void executar(Scanner scanner, PrintStream saida)
-  - loop de retry para entrada inválida: capturar InputInvalidoException, exibir mensagem, continue (OC #2 — sem else)
-  - TuiAnimator é criado e iniciado apenas quando saida == System.out (skip em testes para evitar flaky)
-  - TuiApp delega toda formatação a TuiFormatter — não reimplementa formatação
-  - executar() ≤ 20 linhas (OC #7); extrair exibirBanner() e solicitarSalario() se necessário
-  - sem stack trace visível ao usuário em nenhum cenário
-  - OC #8: TuiApp tem no máximo 2 campos de instância (sugerido: SalarioLiquidoCalculator + InputParser)
+  - exibir banner antes do loop principal
+  - loop continua enquanto não houver um cálculo bem-sucedido
+  - ao capturar InvalidInputException, exibir a mensagem e continuar (continue — OC #2)
+  - spinner é exibido apenas quando output == System.out (não em testes)
+  - método execute() ≤ 20 linhas (OC #7)
+  - exatamente 2 campos de instância: calculator e parser (OC #8)
+  - métodos privados extraídos: displayBanner(output) e calculateWithAnimation(grossSalary, output)
+  - encerrar após o primeiro cálculo bem-sucedido (break)
+  - nunca exibir stack trace ao usuário
 
-flow:
-  1: exibir banner de boas-vindas com TuiApp.exibirBanner(saida)
-  2: entrar em loop infinito (while true)
-  3: exibir prompt "Digite o salário bruto (R$): "
-  4: ler linha do Scanner e fazer trim()
-  5: tentar InputParser.parsear(entrada) — capturar InputInvalidoException → saida.println(e.getMessage()); continue
-  6: se saida == System.out → criar TuiAnimator("Calculando...", saida), start(), calcular, stop()
-  7: senão → calcular diretamente com SalarioLiquidoCalculator
-  8: exibir painel com TuiFormatter.formatar(resultado)
-  9: break (uma só execução por invocação — não repetir após sucesso)
+constructor:
+  params:
+    - name: calculator
+      type: SalaryNetCalculator
+    - name: parser
+      type: InputParser
 
-banner_layout:
+method_execute:
+  signature: "void execute(Scanner scanner, PrintStream output)"
+  flow:
+    - displayBanner(output)
+    - while (true):
+      - ler linha do scanner e trim
+      - tentar parser.parse(input)
+      - se InvalidInputException: output.println(e.getMessage()); continue
+      - se output == System.out: calculateWithAnimation(grossSalary, output)
+      - senão: calcular diretamente
+      - output.println(new TuiFormatter().format(result))
+      - break
+
+banner:
   content: |
     ╭──────────────────────────────────────╮
     │   Calculadora de Salário Líquido     │
     │             2026                     │
     ╰──────────────────────────────────────╯
 
-input:
-  constructor:
-    salarioLiquidoCalculator:
-      type: SalarioLiquidoCalculator
-      required: true
-    inputParser:
-      type: InputParser
-      required: true
-
-  executar_params:
-    scanner:
-      type: Scanner
-      required: true
-      description: Scanner conectado à entrada; fecha responsabilidade do chamador
-    saida:
-      type: PrintStream
-      required: true
-      description: Stream de saída; System.out em produção; ByteArrayOutputStream em testes
-
-errors:
-  - scenario: entrada não numérica
-    action: exibir e.getMessage() da InputInvalidoException e retornar ao prompt (continue)
-    no_stack_trace: true
-  - scenario: entrada zero ou negativa
-    action: exibir e.getMessage() da InputInvalidoException e retornar ao prompt (continue)
-    no_stack_trace: true
-
 test_cases:
-  - id: 1
-    input_lines: ["3000"]
-    assert_contains: ["Salário Líquido"]
-  - id: 2
-    input_lines: ["abc", "3000"]
-    assert_contains: ["Entrada inválida", "Salário Líquido"]
-  - id: 3
-    input_lines: ["-100", "3000"]
-    assert_contains: ["maior que zero", "Salário Líquido"]
-  - id: 4
-    input_lines: ["0", "3000"]
-    assert_contains: ["maior que zero", "Salário Líquido"]
-  - id: 5
-    input_lines: ["3000"]
-    assert_not_contains: ["Exception", "at com.", "StackTrace"]
+  - input: "3000\n"
+    expected_contains: "Salário Líquido"
+  - input: "abc\n3000\n"
+    expected_contains: ["mensagem de erro", "Salário Líquido"]
+  - input: "-100\n3000\n"
+    expected_contains: ["maior que zero", "Salário Líquido"]
+  - input: "3000\n"
+    expected_not_contains: ["Exception", "at com."]
 
 design:
-  - construtor: TuiApp(SalarioLiquidoCalculator calculator, InputParser parser)
-  - campos: private final SalarioLiquidoCalculator calculator; private final InputParser parser (OC #8)
-  - exibirBanner(PrintStream saida): método privado estático com o banner fixo
-  - TuiFormatter: instanciado localmente em executar() (não como campo — YAGNI)
-  - TddApplication.java: adicionar implements CommandLineRunner e delegar para new TuiApp(...).executar(scanner, System.out)
+  - sem @Component Spring — instanciação manual em TddApplication
+  - output != System.out em testes — sem animação
+  - TuiFormatter instanciada dentro de execute() (sem campo)
+  - TuiAnimator instanciada dentro de calculateWithAnimation()
+
+tdd_application_update:
+  description: modificar TddApplication para implementar CommandLineRunner e delegar ao TuiApp
+  code: |
+    @SpringBootApplication
+    public class TddApplication implements CommandLineRunner {
+        public static void main(String[] args) {
+            SpringApplication.run(TddApplication.class, args);
+        }
+        @Override
+        public void run(String... args) {
+            var calculator = new SalaryNetCalculator(new InssTable(), new IrrfTable());
+            new TuiApp(calculator, new InputParser()).execute(new Scanner(System.in), System.out);
+        }
+    }
 
 assumptions:
-  - TuiApp não tem @Component Spring nesta versão — instanciado manualmente em TddApplication (KISS)
-  - O Scanner é criado em TddApplication e passado ao TuiApp; não é fechado pelo TuiApp
-  - O resultado é exibido e o loop termina (break após primeiro sucesso) — não fica em loop infinito aguardando múltiplas consultas
+  - Scanner é criado externamente e passado via execute() para facilitar testes
+  - TuiFormatter não tem estado — pode ser instanciada a cada chamada

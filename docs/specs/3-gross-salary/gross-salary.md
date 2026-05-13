@@ -1,89 +1,78 @@
-# GrossSalary + CalculationResult — Ciclo TDD 3
+# GrossSalary + CalculationResult — Ciclo 3
 
 ## Descrição
 
-Define os tipos de valor imutáveis do domínio. `GrossSalary` encapsula e valida o salário bruto como record Java, impedindo que um valor negativo ou zero circule pelo sistema. `CalculationResult` agrega os quatro campos de uma apuração de salário líquido — sem lógica de cálculo própria.
+Define dois tipos de valor imutáveis para o domínio. `GrossSalary` encapsula o salário bruto validando que o valor é estritamente maior que zero. `CalculationResult` é um DTO que agrega os quatro valores do resultado (bruto, INSS, IRRF, líquido) sem nenhuma lógica de cálculo — apenas carrega os dados.
 
 ---
 
 ## Checklist de Implementação
 
 ### GrossSalary
-- [x] Criar `src/test/java/com/pfc/tdd/calculator/domain/GrossSalaryTest.java` (RED)
-- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/GrossSalary.java` como `record` (GREEN)
-- [x] Adicionar construtor canônico com validação: lançar `IllegalArgumentException` se `value <= 0`
-- [x] **Nunca usar `double`** — campo é `BigDecimal`
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/GrossSalary.java` como `record`
+- [ ] Usar compact constructor para validação: `if (value.compareTo(BigDecimal.ZERO) <= 0) throw new IllegalArgumentException(...)`
+- [ ] Mensagem da exceção: `"Gross salary must be greater than zero"`
+- [ ] Campo: `BigDecimal value` — **nunca `double`**
 
 ### CalculationResult
-- [x] Criar `src/test/java/com/pfc/tdd/calculator/domain/CalculationResultTest.java` (RED)
-- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/CalculationResult.java` como `record` (GREEN)
-- [x] Quatro campos: `gross`, `inss`, `irrf`, `net` — todos `BigDecimal`, não nulos
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/CalculationResult.java` como `record`
+- [ ] Quatro campos: `BigDecimal gross, inss, irrf, net`
+- [ ] Sem nenhuma lógica de cálculo — apenas agregação de dados
 
 ---
 
 ## GrossSalary
 
-### Definição
+### Input
 
-```java
-public record GrossSalary(BigDecimal value) {
-    public GrossSalary {
-        if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Gross salary must be greater than zero");
-        }
-    }
-}
-```
+| Parâmetro | Tipo       | Constraint  | Descrição                    |
+|-----------|------------|-------------|------------------------------|
+| `value`   | BigDecimal | `value > 0` | Salário bruto positivo em R$ |
 
-### Casos de Teste
+### Output
 
-| Entrada       | Resultado esperado                          |
-|---------------|---------------------------------------------|
-| `3000.00`     | Record criado com sucesso                   |
-| `0.01`        | Record criado com sucesso (mínimo válido)   |
-| `0.00`        | `IllegalArgumentException`                  |
-| `-100.00`     | `IllegalArgumentException`                  |
-| `null`        | `NullPointerException` (comportamento padrão do record) |
+| Campo   | Tipo       | Descrição                              |
+|---------|------------|----------------------------------------|
+| `value` | BigDecimal | Salário bruto validado e encapsulado   |
+
+### Erros
+
+| Exceção                  | Quando                     | Mensagem                               |
+|--------------------------|----------------------------|----------------------------------------|
+| `IllegalArgumentException` | `value <= 0`             | `"Gross salary must be greater than zero"` |
 
 ---
 
 ## CalculationResult
 
-### Definição
-
-```java
-public record CalculationResult(
-    BigDecimal gross,
-    BigDecimal inss,
-    BigDecimal irrf,
-    BigDecimal net
-) {}
-```
-
 ### Campos
 
-| Campo     | Tipo       | Descrição                                   |
-|-----------|------------|---------------------------------------------|
-| `gross`   | BigDecimal | Salário bruto original                      |
-| `inss`    | BigDecimal | Contribuição INSS calculada                 |
-| `irrf`    | BigDecimal | IRRF calculado                              |
-| `net`     | BigDecimal | Salário líquido (`gross − inss − irrf`)     |
+| Campo   | Tipo       | Descrição                                 |
+|---------|------------|-------------------------------------------|
+| `gross` | BigDecimal | Salário bruto original                    |
+| `inss`  | BigDecimal | Contribuição INSS calculada               |
+| `irrf`  | BigDecimal | IRRF calculado                            |
+| `net`   | BigDecimal | Salário líquido (bruto − INSS − IRRF)     |
 
-> `CalculationResult` **não calcula** o líquido — recebe os quatro valores já prontos do `SalaryNetCalculator`.
+---
 
-### Casos de Teste
+## Casos de Teste
 
-| gross       | inss      | irrf      | net         |
-|-------------|-----------|-----------|-------------|
-| R$ 5.000,00 | R$ 509,60 | R$ 479,00 | R$ 4.011,40 |
+| Cenário                      | Input              | Resultado Esperado               |
+|------------------------------|--------------------|----------------------------------|
+| GrossSalary válido           | `5000.00`          | `GrossSalary(5000.00)` criado    |
+| GrossSalary com zero         | `0`                | `IllegalArgumentException`       |
+| GrossSalary negativo         | `-100`             | `IllegalArgumentException`       |
+| CalculationResult com dados  | `{5000, 509.60, 479.00, 4011.40}` | Record com campos acessíveis |
 
 ---
 
 ## Regras
 
-- `GrossSalary.value` deve ser estritamente maior que zero — zero e negativos lançam `IllegalArgumentException`.
-- Ambos os records são **imutáveis** por definição — não adicionar setters nem campos mutáveis.
-- `CalculationResult` não tem lógica interna — é apenas um agregador de dados.
+- `GrossSalary` valida no compact constructor — nunca permite instância inválida.
+- `CalculationResult` **não calcula** — recebe valores já calculados.
+- Ambos são imutáveis: records Java não têm setters.
+- **Nunca usar `double`** — apenas `BigDecimal`.
 
 ---
 
@@ -91,13 +80,13 @@ public record CalculationResult(
 
 | Regra | Aplicação |
 |-------|-----------|
-| OC #3 | `GrossSalary` encapsula `BigDecimal` com validação; `inss`/`irrf` não são encapsulados (YAGNI) |
-| OC #7 | Construtor canônico de `GrossSalary` ≤ 3 linhas |
-| OC #8 | `GrossSalary`: 1 campo. `CalculationResult`: 4 campos — exception justificada (é um DTO de resultado) |
+| OC #3 | `GrossSalary` encapsula `BigDecimal` com validação de domínio |
+| OC #7 | Compact constructor com 1 linha de validação |
+| OC #8 | `GrossSalary`: 1 campo; `CalculationResult`: 4 campos (exceção justificada para DTO) |
 
 ---
 
 ## Suposições
 
-- `inss` e `irrf` não são encapsulados em wrappers próprios porque não há risco concreto de troca acidental dado o uso tipado do `CalculationResult`.
-- `CalculationResult` tem 4 campos (excede OC #8 de 2 campos), o que é aceito por ser um record de resultado — documentar essa decisão no log de ciclo.
+- A validação de formato (String → BigDecimal) é responsabilidade do `InputParser` — `GrossSalary` recebe `BigDecimal` já parseado.
+- `CalculationResult` não precisa de validação dos campos — os valores chegam de um cálculo interno confiável.

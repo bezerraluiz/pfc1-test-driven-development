@@ -1,83 +1,72 @@
-# TabelaIrrf — Ciclo TDD 2
+# IrrfTable — Ciclo 2
 
 ## Descrição
 
-Classe stateless que calcula o IRRF (Imposto de Renda Retido na Fonte) a partir da base de cálculo — que é o salário bruto menos a contribuição do INSS. O cálculo usa a tabela progressiva mensal: identifica a faixa em que a base se enquadra, aplica a alíquota sobre a base inteira e subtrai a parcela dedutível correspondente.
+Classe stateless responsável por calcular o IRRF (Imposto de Renda Retido na Fonte) a partir da base de cálculo tributável, que é o salário bruto menos o INSS já calculado. Usa a tabela progressiva mensal de maio/2025. O resultado nunca é negativo; para bases na faixa de isenção, retorna R$ 0,00.
 
 ---
 
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [x] Criar `src/test/java/com/pfc/tdd/calculator/domain/IrrfTableTest.java` (RED)
-- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/IrrfTable.java` (GREEN)
-- [x] Nenhum campo de instância — tabela como constante estática
-- [x] Método público único: `BigDecimal calculate(BigDecimal taxableBase)`
-- [x] Usar `BigDecimal` em todos os cálculos — **nunca `double`**
+- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/IrrfTable.java`
+- [ ] Definir a tabela de faixas como constante estática com alíquota e parcela dedutível
+- [ ] Expor um único método público: `BigDecimal calculate(BigDecimal taxableBase)`
+- [ ] Usar `BigDecimal` em todo cálculo — **nunca `double`**
 
-### Algoritmo
-- [x] Encontrar a faixa em que `taxableBase` se enquadra
-- [x] Se `taxableBase ≤ R$ 2.428,80` → retornar `BigDecimal.ZERO`
-- [x] Caso contrário: `irrf = taxableBase × aliquota − parcelaDedutivel`
-- [x] Aplicar `max(irrf, ZERO)` para garantir resultado não-negativo
-- [x] Arredondar com `setScale(2, RoundingMode.HALF_UP)` no resultado final
+### Algoritmo de cálculo
+- [ ] Se `taxableBase <= R$ 2.428,80` → retornar `BigDecimal.ZERO`
+- [ ] Para as demais faixas: `irrf = taxableBase × aliquota − parcelaDedutivel`
+- [ ] Aplicar `max(irrf, ZERO)` para garantir resultado não-negativo
+- [ ] Aplicar `setScale(2, RoundingMode.HALF_UP)` ao total final
 
 ---
 
 ## Tabela IRRF 05/2025
 
-> **ATENÇÃO:** Os valores abaixo foram atualizados conforme a tabela IRRF 05/2025 fornecida como referência.
+| Faixa | Limite Superior | Alíquota | Parcela Dedutível |
+|-------|-----------------|----------|-------------------|
+| 1     | R$ 2.428,80     | Isento   | —                 |
+| 2     | R$ 2.826,65     | 7,5%     | R$ 182,16         |
+| 3     | R$ 3.751,05     | 15%      | R$ 394,16         |
+| 4     | R$ 4.664,68     | 22,5%    | R$ 675,49         |
+| 5     | Acima de tudo   | 27,5%    | R$ 908,73         |
 
-| Faixa | Base de Cálculo                     | Alíquota | Parcela Dedutível |
-|-------|--------------------------------------|----------|-------------------|
-| 1     | Até R$ 2.428,80                     | Isento   | —                 |
-| 2     | R$ 2.428,81 a R$ 2.826,65          | 7,5%     | R$ 182,16         |
-| 3     | R$ 2.826,66 a R$ 3.751,05          | 15%      | R$ 394,16         |
-| 4     | R$ 3.751,06 a R$ 4.664,68          | 22,5%    | R$ 675,49         |
-| 5     | Acima de R$ 4.664,68               | 27,5%    | R$ 908,73         |
+> Fonte: Tabela IRRF 05/2025
 
 ---
 
 ## Input
 
-| Parâmetro      | Tipo       | Descrição                                                             |
-|----------------|------------|-----------------------------------------------------------------------|
-| `baseCalculo`  | BigDecimal | Salário bruto menos INSS — nunca negativo; calculado antes pelo chamador |
+| Parâmetro     | Tipo       | Descrição                                            |
+|---------------|------------|------------------------------------------------------|
+| `taxableBase` | BigDecimal | Base tributável (salário bruto − INSS); deve ser positivo |
 
 ## Output
 
-| Campo  | Tipo       | Escala | Arredondamento | Mínimo | Descrição                    |
-|--------|------------|--------|----------------|--------|------------------------------|
-| `irrf` | BigDecimal | 2      | HALF_UP        | 0.00   | IRRF apurado; nunca negativo |
+| Campo  | Tipo       | Escala | Arredondamento | Mínimo | Descrição            |
+|--------|------------|--------|----------------|--------|----------------------|
+| `irrf` | BigDecimal | 2      | HALF_UP        | 0,00   | Valor do IRRF apurado |
 
 ---
 
 ## Casos de Teste
 
-| Base de Cálculo | IRRF Esperado   | Observação                                              |
-|-----------------|-----------------|---------------------------------------------------------|
-| R$ 1.500,00     | R$ 0,00         | Abaixo da isenção                                       |
-| R$ 2.428,80     | R$ 0,00         | No limite exato da isenção                              |
-| R$ 3.500,00     | R$ 130,84       | Faixa 3: 3500 × 15% − 394,16 = 525,00 − 394,16         |
-| R$ 4.490,40     | R$ 334,85       | Faixa 4: 4490,40 × 22,5% − 675,49 = 1010,34 − 675,49   |
-
----
-
-## Fluxo de Cálculo (exemplo R$ 3.500,00 — faixa 3)
-
-1. `baseCalculo = 3.500,00`
-2. Enquadra na faixa 3 (2.826,66 a 3.751,05)
-3. `IRRF = 3.500,00 × 15% − 394,16 = 525,00 − 394,16 = 130,84`
-4. Resultado: **R$ 130,84**
+| Base de Cálculo | IRRF Esperado | Observação                       |
+|-----------------|---------------|----------------------------------|
+| R$ 1.500,00     | R$ 0,00       | Abaixo da isenção                |
+| R$ 2.428,80     | R$ 0,00       | Limite exato da isenção          |
+| R$ 3.500,00     | R$ 130,84     | Faixa 3: 3500 × 15% − 394,16   |
+| R$ 4.490,40     | R$ 334,85     | Faixa 4: 4490,40 × 22,5% − 675,49 |
 
 ---
 
 ## Regras
 
-- A base de cálculo é sempre `grossSalary − INSS` — esta classe não recebe o salário bruto nem o INSS separadamente.
-- Resultado nunca negativo: se `base × aliquota − deducao < 0`, retornar `BigDecimal.ZERO`.
-- Nenhuma dedução por dependentes — fora do escopo (YAGNI).
-- **Sem arredondamento intermediário** — arredondar apenas o resultado final.
+- A base de cálculo é sempre `bruto − INSS` — esta classe não faz esse desconto, recebe já calculado.
+- Faixa de isenção: base ≤ R$ 2.428,80 → retornar `BigDecimal.ZERO` diretamente.
+- Resultado nunca negativo: aplicar `max(irrf, ZERO)` antes do arredondamento.
+- Arredondamento `HALF_UP`, escala 2, aplicado apenas ao total final.
 
 ---
 
@@ -85,12 +74,12 @@ Classe stateless que calcula o IRRF (Imposto de Renda Retido na Fonte) a partir 
 
 | Regra | Aplicação |
 |-------|-----------|
-| OC #7 | `calcular()` ≤ 5 linhas; lógica de faixa em método privado se necessário |
+| OC #7 | `calculate()` ≤ 5 linhas; extrair helper se necessário |
 | OC #8 | Nenhum campo de instância — tabela como constante estática |
 
 ---
 
 ## Suposições
 
-- Os valores da tabela foram alinhados à referência visual `Tabela IRRF 05/2025` enviada.
-- Sem desconto simplificado ou dependentes — implementação mínima conforme YAGNI.
+- A tabela IRRF de 05/2025 é a vigente; atualizações futuras exigem alteração direta em `IrrfTable`.
+- A base de cálculo já vem com o INSS descontado — esta classe não realiza esse desconto.

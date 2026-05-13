@@ -1,34 +1,46 @@
 feature: input-parser
-description: Faz o parse de uma String digitada pelo usuário em um GrossSalary. Lança InvalidInputException para entradas não numéricas, zero ou negativas, com mensagens amigáveis em português que são exibidas na TUI sem stack trace.
+description: >
+  Converte a entrada de texto do usuário em um GrossSalary válido, com mensagens de erro em português.
+  InvalidInputException é uma exceção unchecked lançada para entradas inválidas ou valores fora do domínio.
 
 tdd_cycle: 5
 package: com.pfc.tdd.calculator.tui
-class: InputParser
-type: utility
+classes:
+  - name: InputParser
+    type: stateless-service
+  - name: InvalidInputException
+    type: exception (unchecked)
 
 rules:
-  - entrada válida retorna GrossSalary com o valor parseado
-  - aceitar ponto e vírgula como separador decimal
-  - entrada vazia ou em branco lança InvalidInputException
-  - entrada não numérica lança InvalidInputException
-  - entrada zero ou negativa lança InvalidInputException
-  - o trim() da string deve ser feito externamente antes de chamar o parser
+  - se text for nulo, vazio ou apenas espaços, lançar InvalidInputException com mensagem de entrada inválida
+  - aceitar vírgula como separador decimal (substituir "," por "." antes do parse)
+  - se o texto não for parseável como BigDecimal, lançar InvalidInputException com mensagem de entrada inválida
+  - se o valor for zero ou negativo (IllegalArgumentException de GrossSalary), lançar InvalidInputException com mensagem de salário inválido
+  - sem else — usar early throw (OC #2)
+  - InvalidInputException extends RuntimeException (unchecked)
 
-inputs:
+input:
   text:
     type: String
-    required: true
+    required: false
+    nullable: true
+    description: Texto digitado pelo usuário no terminal
 
-outputs:
+output:
   grossSalary:
     type: GrossSalary
+    nullable: false
+    description: Salário bruto validado e encapsulado
 
-exceptions:
-  InvalidInputException:
-    type: unchecked
-    messages:
-      numeric_error: "Entrada inválida. Digite um número válido, como 3000 ou 3000,50."
-      domain_error: "O salário deve ser maior que zero."
+errors:
+  - code: INVALID_INPUT
+    type: InvalidInputException
+    trigger: texto nulo, vazio, branco ou não parseável como número
+    message: "Entrada inválida. Digite um número válido, como 3000 ou 3000,50."
+  - code: INVALID_SALARY
+    type: InvalidInputException
+    trigger: valor zero ou negativo (IllegalArgumentException de GrossSalary)
+    message: "O salário deve ser maior que zero."
 
 test_cases:
   - input: "3000"
@@ -37,15 +49,22 @@ test_cases:
     expected: GrossSalary(3000.50)
   - input: "3000,50"
     expected: GrossSalary(3000.50)
+    note: vírgula como separador decimal
   - input: "abc"
-    expected: throws InvalidInputException
+    expected: InvalidInputException (mensagem de entrada inválida)
   - input: "0"
-    expected: throws InvalidInputException
+    expected: InvalidInputException (mensagem de salário inválido)
+  - input: "-100"
+    expected: InvalidInputException (mensagem de salário inválido)
+  - input: ""
+    expected: InvalidInputException (mensagem de entrada inválida)
 
 design:
-  - implementar como classe stateless
-  - método público: GrossSalary parse(String text)
-  - usar text.replace(",", ".") para normalização
-  - capturar NumberFormatException e relançar como InvalidInputException
-  - capturar IllegalArgumentException do construtor canônico de GrossSalary e relançar como InvalidInputException
-  - seguir OC #2: usar early throw em vez de if-else
+  - InputParser stateless — sem campos de instância
+  - método: GrossSalary parse(String text)
+  - usar early throw sem else (OC #2)
+  - algoritmo: isBlank → throw; replace , → .; new BigDecimal → catch → throw; new GrossSalary → catch IAE → throw
+
+assumptions:
+  - o trim() do input é feito externamente (em TuiApp) antes de chamar parse()
+  - não há suporte a formatos de moeda com símbolo R$ na entrada
