@@ -9,21 +9,21 @@ Orquestra o cálculo completo do salário líquido. Recebe um `GrossSalary`, del
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [ ] Criar `src/test/java/com/pfc/tdd/calculator/domain/SalaryNetCalculatorTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/SalaryNetCalculator.java` (GREEN)
-- [ ] Construtor: `SalaryNetCalculator(InssTable inssTable, IrrfTable irrfTable)`
-- [ ] Exatamente **2 campos de instância**: `inssTable` e `irrfTable` (OC #8)
-- [ ] Nos testes: instanciar `InssTable` e `IrrfTable` reais — **sem mock**
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/domain/SalaryNetCalculatorTest.java` (RED)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/SalaryNetCalculator.java` (GREEN)
+- [x] Construtor: `SalaryNetCalculator(InssTable inssTable, IrrfTable irrfTable)`
+- [x] Exatamente **2 campos de instância**: `inssTable` e `irrfTable` (OC #8)
+- [x] Nos testes: instanciar `InssTable` e `IrrfTable` reais — **sem mock**
 
 ### Método calculate
-- [ ] Assinatura: `CalculationResult calculate(GrossSalary grossSalary)`
-- [ ] Nomear cada resultado intermediário (OC #5):
+- [x] Assinatura: `CalculationResult calculate(GrossSalary grossSalary)`
+- [x] Nomear cada resultado intermediário (OC #5):
   - `BigDecimal inss = inssTable.calculate(grossSalary.value())`
   - `BigDecimal taxableBase = grossSalary.value().subtract(inss)`
   - `BigDecimal irrf = irrfTable.calculate(taxableBase)`
   - `BigDecimal net = grossSalary.value().subtract(inss).subtract(irrf)`
-- [ ] Retornar `new CalculationResult(grossSalary.value(), inss, irrf, net)`
-- [ ] Método ≤ 7 linhas (OC #7)
+- [x] Retornar `new CalculationResult(grossSalary.value(), inss, irrf, net)`
+- [x] Método ≤ 7 linhas (OC #7)
 
 ---
 
