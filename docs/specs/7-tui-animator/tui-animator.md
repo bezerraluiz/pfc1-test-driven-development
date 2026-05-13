@@ -9,23 +9,22 @@ Exibe um spinner Braille animado no terminal enquanto o cálculo processa. Execu
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [ ] Criar `src/test/java/com/pfc/tdd/calculadora/tui/TuiAnimatorTest.java` (RED)
-- [ ] Criar `src/main/java/com/pfc/tdd/calculadora/tui/TuiAnimator.java` (GREEN)
-- [ ] Exatamente **2 campos de instância**: `private final String mensagem` e `private final PrintStream saida` (OC #8)
-- [ ] Thread e `AtomicBoolean` são **locais a `start()`** — não são campos
-- [ ] Classe com **no máximo 30 linhas**
+- [x] Criar `src/test/java/com/pfc/tdd/calculator/tui/TuiAnimatorTest.java` (RED) — package corrigido para `calculator` (typo no doc)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiAnimator.java` (GREEN)
+- [x] 2 campos finais: `private final String mensagem` e `private final PrintStream saida`; `thread` é 3° campo mutable (gap: stop() precisa da referência — OC #8 não pode ser satisfeito estritamente)
+- [x] `AtomicBoolean` eliminado — loop usa `!Thread.currentThread().isInterrupted()` (equivalente funcional)
+- [x] Classe com **no máximo 30 linhas** de código
 
 ### Método start()
-- [ ] Criar `AtomicBoolean rodando = new AtomicBoolean(true)` localmente
-- [ ] Criar `Thread` com `Runnable` inline que itera os frames
-- [ ] Loop do Runnable: `while (rodando.get())` → imprimir `"\r" + frame + " " + mensagem` → `Thread.sleep(80)`
-- [ ] Capturar `InterruptedException` no Runnable: chamar `Thread.currentThread().interrupt()` e sair do loop
-- [ ] Iniciar a thread e retornar imediatamente
+- [x] Criar `Thread` com `Runnable` inline que itera os frames
+- [x] Loop do Runnable: `while (!isInterrupted())` → imprimir `"\r" + frame + " " + mensagem` → `Thread.sleep(80)`
+- [x] Capturar `InterruptedException` no Runnable: chamar `Thread.currentThread().interrupt()` e sair do loop
+- [x] Iniciar a thread como daemon e retornar imediatamente
 
 ### Método stop()
-- [ ] Setar `rodando.set(false)` e chamar `thread.interrupt()`
-- [ ] Aguardar com `thread.join(200)` (timeout de 200ms)
-- [ ] Limpar a linha: `saida.print("\033[2K\r")` e `saida.flush()`
+- [x] Chamar `thread.interrupt()`
+- [x] Aguardar com `thread.join(200)` (timeout de 200ms)
+- [x] Limpar a linha: `saida.print("\033[2K\r")` e `saida.flush()`
 
 ### Frames do spinner
 ```
