@@ -9,27 +9,27 @@ Exibe um spinner animado com frames Braille em uma thread de background enquanto
 ## Checklist de Implementação
 
 ### Estrutura
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiAnimator.java`
-- [ ] Exatamente 2 campos de instância: `String mensagem` e `PrintStream saida` (OC #8)
-- [ ] Thread como variável local em `start()` — não como campo da classe
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiAnimator.java`
+- [x] Exatamente 2 campos de instância: `String mensagem` e `PrintStream saida` (OC #8)
+- [x] Thread como variável local em `start()` — não como campo da classe
 
 ### Construtor
-- [ ] `public TuiAnimator(String mensagem, PrintStream saida)`
-- [ ] Atribuir aos campos finais
+- [x] `public TuiAnimator(String mensagem, PrintStream saida)`
+- [x] Atribuir aos campos finais
 
 ### Método start()
-- [ ] Criar `Thread` com `Runnable` que itera os frames
-- [ ] Frames Braille: `{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}`
-- [ ] Loop: `while (!Thread.currentThread().isInterrupted())`
-- [ ] Imprimir: `saida.print("\r" + frame + " " + mensagem)`
-- [ ] Dormir 80ms entre frames
-- [ ] Capturar `InterruptedException`: chamar `Thread.currentThread().interrupt()` e sair do loop
+- [x] Criar `Thread` com `Runnable` que itera os frames
+- [x] Frames Braille: `{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}`
+- [x] Loop: `while (!Thread.currentThread().isInterrupted())`
+- [x] Imprimir: `saida.print("\r" + frame + " " + mensagem)`
+- [x] Dormir 80ms entre frames
+- [x] Capturar `InterruptedException`: chamar `Thread.currentThread().interrupt()` e sair do loop
 
 ### Método stop()
-- [ ] Chamar `thread.interrupt()`
-- [ ] Aguardar com `thread.join(200)` (timeout 200ms)
-- [ ] Limpar linha: `saida.print("\033[2K\r")`
-- [ ] Chamar `saida.flush()`
+- [x] Chamar `thread.interrupt()`
+- [x] Aguardar com `thread.join(200)` (timeout 200ms)
+- [x] Limpar linha: `saida.print("\033[2K\r")`
+- [x] Chamar `saida.flush()`
 
 ---
 

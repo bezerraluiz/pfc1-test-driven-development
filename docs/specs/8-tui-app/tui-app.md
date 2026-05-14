@@ -9,31 +9,31 @@ Orquestra o fluxo completo da TUI interativa. Exibe um banner, solicita o salár
 ## Checklist de Implementação
 
 ### TuiApp
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiApp.java`
-- [ ] Construtor: `public TuiApp(SalaryNetCalculator calculator, InputParser parser)`
-- [ ] Exatamente 2 campos de instância: `calculator` e `parser` (OC #8)
-- [ ] Método público: `public void execute(Scanner scanner, PrintStream output)`
-- [ ] `execute()` ≤ 20 linhas (OC #7)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiApp.java`
+- [x] Construtor: `public TuiApp(SalaryNetCalculator calculator, InputParser parser)`
+- [x] Exatamente 2 campos de instância: `calculator` e `parser` (OC #8)
+- [x] Método público: `public void execute(Scanner scanner, PrintStream output)`
+- [x] `execute()` ≤ 20 linhas (OC #7)
 
 ### Método execute()
-- [ ] Chamar `displayBanner(output)` antes do loop
-- [ ] Loop `while (true)`:
-  - [ ] Imprimir prompt: `output.print(" Digite o salário bruto (R$): ")`
-  - [ ] Ler: `var input = scanner.nextLine().trim()`
-  - [ ] Tentar `parser.parse(input)` — se `InvalidInputException`: `output.println(e.getMessage()); continue`
-  - [ ] Se `output == System.out`: chamar `calculateWithAnimation(grossSalary, output)`
-  - [ ] Senão: `var result = calculator.calculate(grossSalary)`
-  - [ ] `output.println(new TuiFormatter().format(result))`
-  - [ ] `break`
+- [x] Chamar `displayBanner(output)` antes do loop
+- [x] Loop `while (true)`:
+  - [x] Imprimir prompt: `output.print(" Digite o salário bruto (R$): ")`
+  - [x] Ler: `var input = scanner.nextLine().trim()`
+  - [x] Tentar `parser.parse(input)` — se `InvalidInputException`: `output.println(e.getMessage()); continue`
+  - [x] Se `output == System.out`: chamar `calculateWithAnimation(grossSalary, output)`
+  - [x] Senão: `var result = calculator.calculate(grossSalary)`
+  - [x] `output.println(new TuiFormatter().format(result))`
+  - [x] `break`
 
 ### Métodos privados
-- [ ] `private void displayBanner(PrintStream output)` — exibir o banner de boas-vindas
-- [ ] `private CalculationResult calculateWithAnimation(GrossSalary grossSalary, PrintStream output)` — criar animator, start, calculate, stop
+- [x] `private void displayBanner(PrintStream output)` — exibir o banner de boas-vindas
+- [x] `private CalculationResult calculateWithAnimation(GrossSalary grossSalary, PrintStream output)` — criar animator, start, calculate, stop
 
 ### TddApplication (atualizar)
-- [ ] Implementar `CommandLineRunner` em `TddApplication`
-- [ ] Método `run()`: instanciar `SalaryNetCalculator`, `InputParser`, `TuiApp` manualmente
-- [ ] `SpringApplication.run()` no `main()`
+- [x] Implementar `CommandLineRunner` em `TddApplication`
+- [x] Método `run()`: instanciar `SalaryNetCalculator`, `InputParser`, `TuiApp` manualmente
+- [x] `SpringApplication.run()` no `main()`
 
 ---
 
