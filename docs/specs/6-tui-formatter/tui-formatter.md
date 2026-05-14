@@ -9,29 +9,29 @@ Formata um `CalculationResult` como painel de terminal com bordas Unicode, cores
 ## Checklist de Implementação
 
 ### Estrutura
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiFormatter.java`
-- [ ] Classe stateless — sem campos de instância (OC #8)
-- [ ] Método público: `public String format(CalculationResult result)`
-- [ ] Método privado: `private String formatCurrency(BigDecimal value)` — única fonte de formatação monetária (DRY)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/TuiFormatter.java`
+- [x] Classe stateless — sem campos de instância (OC #8)
+- [x] Método público: `public String format(CalculationResult result)`
+- [x] Método privado: `private String formatCurrency(BigDecimal value)` — única fonte de formatação monetária (DRY)
 
 ### Formatação monetária
-- [ ] Separador de milhar: `.` (ponto)
-- [ ] Separador decimal: `,` (vírgula)
-- [ ] Prefixo: `R$ `
-- [ ] Sempre 2 casas decimais
-- [ ] Exemplo: `BigDecimal("5000.40")` → `"R$ 5.000,40"`
+- [x] Separador de milhar: `.` (ponto)
+- [x] Separador decimal: `,` (vírgula)
+- [x] Prefixo: `R$ `
+- [x] Sempre 2 casas decimais
+- [x] Exemplo: `BigDecimal("5000.40")` → `"R$ 5.000,40"`
 
 ### Layout do painel
-- [ ] Borda superior: `╭──────────────────────────────────────╮`
-- [ ] Cabeçalho "Resumo do Salário" em ciano: `\033[36m` + reset `\033[0m`
-- [ ] Separador: `├──────────────────────────────────────┤`
-- [ ] Linha "Salário Bruto" com valor alinhado à direita
-- [ ] Separador após bruto
-- [ ] Linha "(-) INSS" em vermelho: `\033[31m` + reset
-- [ ] Linha "(-) IRRF" em vermelho: `\033[31m` + reset
-- [ ] Separador duplo: `├══════════════════════════════════════╡`
-- [ ] Linha "Salário Líquido" em verde negrito: `\033[1;32m` + reset
-- [ ] Borda inferior: `╰──────────────────────────────────────╯`
+- [x] Borda superior: `╭──────────────────────────────────────╮`
+- [x] Cabeçalho "Resumo do Salário" em ciano: `\033[36m` + reset `\033[0m`
+- [x] Separador: `├──────────────────────────────────────┤`
+- [x] Linha "Salário Bruto" com valor alinhado à direita
+- [x] Separador após bruto
+- [x] Linha "(-) INSS" em vermelho: `\033[31m` + reset
+- [x] Linha "(-) IRRF" em vermelho: `\033[31m` + reset
+- [x] Separador duplo: `├══════════════════════════════════════╡`
+- [x] Linha "Salário Líquido" em verde negrito: `\033[1;32m` + reset
+- [x] Borda inferior: `╰──────────────────────────────────────╯`
 
 ### Auxiliar para testes
 - [ ] Criar `src/test/java/com/pfc/tdd/calculator/tui/TestHelper.java`

@@ -9,21 +9,21 @@
 ## Checklist de Implementação
 
 ### InvalidInputException
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/InvalidInputException.java`
-- [ ] Estender `RuntimeException` (unchecked)
-- [ ] Construtor: `public InvalidInputException(String mensagem)`
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/InvalidInputException.java`
+- [x] Estender `RuntimeException` (unchecked)
+- [x] Construtor: `public InvalidInputException(String mensagem)`
 
 ### InputParser
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/tui/InputParser.java`
-- [ ] Classe stateless — sem campos de instância (OC #8)
-- [ ] Método público: `public GrossSalary parse(String text)`
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/tui/InputParser.java`
+- [x] Classe stateless — sem campos de instância (OC #8)
+- [x] Método público: `public GrossSalary parse(String text)`
 
 ### Algoritmo de parse (sem else — OC #2)
-- [ ] Se `text == null` ou `text.isBlank()` → lançar `InvalidInputException` com mensagem de entrada inválida
-- [ ] Substituir `,` por `.` para aceitar vírgula decimal: `text.replace(",", ".")`
-- [ ] Tentar `new BigDecimal(text)` — se lançar `NumberFormatException` → lançar `InvalidInputException` com mensagem de entrada inválida
-- [ ] Tentar `new GrossSalary(value)` — se lançar `IllegalArgumentException` → lançar `InvalidInputException` com mensagem de salário inválido
-- [ ] Retornar `GrossSalary`
+- [x] Se `text == null` ou `text.isBlank()` → lançar `InvalidInputException` com mensagem de entrada inválida
+- [x] Substituir `,` por `.` para aceitar vírgula decimal: `text.replace(",", ".")`
+- [x] Tentar `new BigDecimal(text)` — se lançar `NumberFormatException` → lançar `InvalidInputException` com mensagem de entrada inválida
+- [x] Tentar `new GrossSalary(value)` — se lançar `IllegalArgumentException` → lançar `InvalidInputException` com mensagem de salário inválido
+- [x] Retornar `GrossSalary`
 
 ---
 
