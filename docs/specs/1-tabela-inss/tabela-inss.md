@@ -9,16 +9,16 @@ Classe stateless responsável por calcular a contribuição do INSS com base no 
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/InssTable.java`
-- [ ] Definir a tabela de faixas como constante estática (`private static final List<...>` ou array)
-- [ ] Expor um único método público: `BigDecimal calculate(BigDecimal grossSalary)`
-- [ ] Usar `BigDecimal` em todo cálculo — **nunca `double`**
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/InssTable.java`
+- [x] Definir a tabela de faixas como constante estática (`private static final List<...>` ou array)
+- [x] Expor um único método público: `BigDecimal calculate(BigDecimal grossSalary)`
+- [x] Usar `BigDecimal` em todo cálculo — **nunca `double`**
 
 ### Algoritmo de cálculo
-- [ ] Para cada faixa da tabela, calcular a parcela: `min(salario, limiteSuperior) - limiteInferior` × `aliquota`
-- [ ] Acumular as parcelas sem arredondar cada uma individualmente
-- [ ] Aplicar `setScale(2, RoundingMode.HALF_EVEN)` **apenas** no total final
-- [ ] Para salário acima do teto (R$ 8.475,55), calcular somente até o teto
+- [x] Para cada faixa da tabela, calcular a parcela: `min(salario, limiteSuperior) - limiteInferior` × `aliquota`
+- [x] Acumular as parcelas sem arredondar cada uma individualmente
+- [x] Aplicar `setScale(2, RoundingMode.HALF_EVEN)` **apenas** no total final
+- [x] Para salário acima do teto (R$ 8.475,55), calcular somente até o teto
 
 ---
 

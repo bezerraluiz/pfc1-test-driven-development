@@ -9,16 +9,16 @@ Classe stateless responsável por calcular o IRRF (Imposto de Renda Retido na Fo
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/IrrfTable.java`
-- [ ] Definir a tabela de faixas como constante estática com alíquota e parcela dedutível
-- [ ] Expor um único método público: `BigDecimal calculate(BigDecimal taxableBase)`
-- [ ] Usar `BigDecimal` em todo cálculo — **nunca `double`**
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/IrrfTable.java`
+- [x] Definir a tabela de faixas como constante estática com alíquota e parcela dedutível
+- [x] Expor um único método público: `BigDecimal calculate(BigDecimal taxableBase)`
+- [x] Usar `BigDecimal` em todo cálculo — **nunca `double`**
 
 ### Algoritmo de cálculo
-- [ ] Se `taxableBase <= R$ 2.428,80` → retornar `BigDecimal.ZERO`
-- [ ] Para as demais faixas: `irrf = taxableBase × aliquota − parcelaDedutivel`
-- [ ] Aplicar `max(irrf, ZERO)` para garantir resultado não-negativo
-- [ ] Aplicar `setScale(2, RoundingMode.HALF_UP)` ao total final
+- [x] Se `taxableBase <= R$ 2.428,80` → retornar `BigDecimal.ZERO`
+- [x] Para as demais faixas: `irrf = taxableBase × aliquota − parcelaDedutivel`
+- [x] Aplicar `max(irrf, ZERO)` para garantir resultado não-negativo
+- [x] Aplicar `setScale(2, RoundingMode.HALF_UP)` ao total final
 
 ---
 
