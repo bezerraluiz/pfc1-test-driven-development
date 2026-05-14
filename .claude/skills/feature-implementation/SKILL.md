@@ -1,11 +1,10 @@
 ---
 date: 16-04-2026
 name: feature-implementation
-description: Implementa uma feature a partir de um `contrato.yaml`, tratando o contrato como fonte de verdade para testes, código, integrações e validação final. Use quando a SPEC já estiver pronta e for necessário desenvolver a feature na codebase atual com TDD, sem reinventar escopo, regras ou fluxos fora do contrato.
+description: Implementa uma feature a partir de um `contrato.yaml`, tratando o contrato como fonte de verdade para código, integrações e validação final. Use quando a SPEC já estiver pronta e for necessário desenvolver a feature na codebase atual sem TDD e sem testes automatizados, sem reinventar escopo, regras ou fluxos fora do contrato.
 tags:
   - skill/feature-implementation
   - implementation
-  - tdd
   - yaml
 disable-model-invocation: true
 ---
@@ -25,17 +24,18 @@ Executa o desenvolvimento de uma feature já especificada em `contrato.yaml`.
 Entregar a feature funcionando com base no `contrato.yaml`, seguindo esta ordem obrigatória:
 
 1. ler e validar o contrato;
-2. escrever ou ajustar testes para representar o contrato;
-3. coverage de testes ~95%;
+2. converter o contrato em checklist executável;
+3. implementar o código alinhado ao contrato;
 4. refatorar sem alterar o comportamento contratado;
-5. validar coerência final entre contrato, testes e código.
+5. validar coerência final entre contrato e código.
 
 O `contrato.yaml` é a fonte da verdade. A implementação não deve inventar comportamento fora dele. **A SPEC (contrato) é a autoridade máxima** - qualquer decisão fora do escopo definido deve ser registrada como lacuna ou questionada antes de ser implementada.
+
+**Proibido escrever testes automatizados** — esta branch segue desenvolvimento sem TDD. Nenhum arquivo de teste deve ser criado ou modificado.
 
 ## Princípios
 
 - tratar o contrato como escopo fechado da implementação;
-- Sempre usar TDD: `red`, `green`, `refactor`;
 - preservar padrões já existentes da codebase;
 - registrar suposições ou lacunas explicitamente;
 
@@ -46,7 +46,7 @@ Estes princípios devem ser seguidos em toda implementação:
 - **KISS** - Manter simplicidade operacional: resolver o problema atual com o menor número de partes possível, preferir clareza à esperteza, reduzir abstrações desnecessárias
 - **YAGNI** - Não implementar antecipadamente: construir apenas o que o problema atual exige, adiar abstrações até necessidade comprovada
 - **DRY** - Evitar duplicação de conhecimento: cada regra importante deve ter uma fonte principal de verdade, consolidar repetição real, não criar abstrações prematuras
-- **Less Code, Best Code** - Menos código é melhor código: cada linha adicionada é uma linha que precisa ser lida, mantida e testada. Preferir deletar código a adicionar. A melhor solução geralmente é a que resolve o problema com menos código.
+- **Less Code, Best Code** - Menos código é melhor código: cada linha adicionada é uma linha que precisa ser lida e mantida. Preferir deletar código a adicionar. A melhor solução geralmente é a que resolve o problema com menos código.
 
 ### Object Calisthenics (OBRIGATÓRIOS)
 
@@ -120,56 +120,31 @@ Antes de codar, converter o contrato em itens verificáveis:
 
 Nada deve ser implementado sem estar mapeado para um item concreto do contrato.
 
-### 3. Planejar os testes a partir do contrato
+### 3. Implementar o código
 
-Derivar os testes diretamente do `contrato.yaml`.
+Implementar diretamente o comportamento definido no contrato:
 
-Cobrir no mínimo:
-
-- cenário feliz;
-- validações de input;
-- regras de negócio;
-- erros esperados;
-- regressões prováveis;
-- integrações afetadas, se houver.
-
-Escolher o nível mais adequado para cada validação:
-
-- unitário para regra isolada;
-- integração para fluxo entre camadas;
-- contrato para entradas e saídas estruturadas;
-- E2E ou fluxo para comportamento ponta a ponta quando necessário.
-
-### 4. Executar `red -> green -> refactor`
-
-#### Red
-
-- escrever primeiro os testes que representam o contrato;
-- confirmar que falham pelo motivo correto;
-- evitar testes genéricos que não provam o comportamento contratado.
-
-#### Green
-
-- implementar apenas o necessário para fazer os testes passarem;
 - alterar o menor número possível de arquivos;
-- manter nomes, fluxos e erros alinhados ao contrato.
+- manter nomes, fluxos e erros alinhados ao contrato;
+- validar entradas conforme `input` do contrato;
+- produzir saídas conforme `output` do contrato;
+- tratar erros conforme `errors` do contrato.
 
-#### Refactor
+### 4. Refatorar
 
-- simplificar o código depois dos testes verdes;
+- simplificar o código sem alterar o comportamento contratado;
 - remover duplicação e código provisório;
-- preservar integralmente o comportamento validado.
+- garantir que o código final está alinhado ao contrato.
 
 ### 5. Validar coerência final
 
 Antes de concluir, conferir:
 
-- toda regra do contrato existe em testes e código;
+- toda regra do contrato existe no código;
 - todos os inputs esperados estão validados;
 - todos os outputs esperados estão produzidos;
 - todos os erros definidos estão tratados;
-- a implementação não adicionou comportamento fora do contrato;
-- os testes executados cobrem o que foi implementado.
+- a implementação não adicionou comportamento fora do contrato.
 
 ## Formato Da Saída
 
@@ -188,35 +163,18 @@ Entregar a resposta em Markdown com esta estrutura mínima:
 - `src/modules/users/controller.ts` - endpoint de usuários
 - `src/modules/users/service.ts` - regra de negócio do domínio
 - `src/modules/users/repository.ts` - busca por e-mail existente
-- `tests/users/create-user.test.ts` - padrão de testes do módulo
 - `src/shared/errors/AppError.ts` - classe base para erros
 - `src/shared/container/index.ts` - injeção de dependência
-- `src/database/typeorm/migrations/` - migrations para users
-- `tests/utils/test-utils.ts` - utilitários para mock
-- `tests/factories/users.factory.ts` - factory para usuários
-- `jest.config.js` - configuração de testes com coverage
 
 ## Implementação realizada
 
-- **Testes**: sucesso, erro EMAIL_ALREADY_EXISTS, input inválido
 - **Código**: validação de payload, verificação de unicidade, retorno conforme output do contrato
 - **Alinhamento**: rules → validação/serviço, input → boundary, output → retorno, errors → tratamento
 
-## Resultados dos testes
-
-| Métrica | Valor |
-|---------|-------|
-| Total | 12 |
-| Passed | 10 |
-| Failed | 1 |
-| Skipped | 1 |
-| Coverage | statements 85%, branches 78%, functions 80%, lines 82% |
-
 ## Validação final
 
-- Testes executados: `npm test -- users/create-user`
-- Checks adicionais: lint do módulo
-- Riscos residuais: cobertura E2E não adicionada
+- Checks realizados: lint do módulo, build sem erros
+- Riscos residuais: nenhum
 - Itens não realizados: nenhum
 ```
 
@@ -224,10 +182,10 @@ Entregar a resposta em Markdown com esta estrutura mínima:
 
 - Não implementar nada que não esteja sustentado pelo `contrato.yaml`.
 - Não ignorar conflito entre contrato e comportamento atual; registrar e resolver de forma explícita.
-- Não pular testes quando a feature altera comportamento verificável.
+- **Não criar nem modificar arquivos de teste** — desenvolvimento sem testes automatizados.
 - Não reescrever arquitetura do projeto sem necessidade clara do contrato.
 - Não commitar as alterações.
-- Proibido usar `any` em qualquer ponto do código. Toda tipagem deve ser explícita e correta. 
+- Proibido usar `any` em qualquer ponto do código. Toda tipagem deve ser explícita e correta.
 - Não usar workarounds ou gambiarras para contornar erros — resolver sempre a causa raiz.
 - Não deixar código legado.
 
@@ -236,11 +194,10 @@ Entregar a resposta em Markdown com esta estrutura mínima:
 O trabalho está pronto quando:
 
 1. o `contrato.yaml` tiver sido lido e convertido em checklist executável;
-2. os testes representarem o comportamento contratado;
-3. a implementação fizer os testes passarem;
-4. o código final permanecer coerente com o contrato;
-5. os riscos, suposições e limitações estiverem explícitos;
-6. a documentação markdown da feature tiver seu checklist marcado como concluído.
+2. o código implementar o comportamento contratado;
+3. o código final permanecer coerente com o contrato;
+4. os riscos, suposições e limitações estiverem explícitos;
+5. a documentação markdown da feature tiver seu checklist marcado como concluído.
 
 ### Marcação do Checklist da Documentação
 
