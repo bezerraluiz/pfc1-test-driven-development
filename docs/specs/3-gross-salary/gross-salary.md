@@ -9,15 +9,15 @@ Define dois tipos de valor imutáveis para o domínio. `GrossSalary` encapsula o
 ## Checklist de Implementação
 
 ### GrossSalary
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/GrossSalary.java` como `record`
-- [ ] Usar compact constructor para validação: `if (value.compareTo(BigDecimal.ZERO) <= 0) throw new IllegalArgumentException(...)`
-- [ ] Mensagem da exceção: `"Gross salary must be greater than zero"`
-- [ ] Campo: `BigDecimal value` — **nunca `double`**
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/GrossSalary.java` como `record`
+- [x] Usar compact constructor para validação: `if (value.compareTo(BigDecimal.ZERO) <= 0) throw new IllegalArgumentException(...)`
+- [x] Mensagem da exceção: `"Gross salary must be greater than zero"`
+- [x] Campo: `BigDecimal value` — **nunca `double`**
 
 ### CalculationResult
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/CalculationResult.java` como `record`
-- [ ] Quatro campos: `BigDecimal gross, inss, irrf, net`
-- [ ] Sem nenhuma lógica de cálculo — apenas agregação de dados
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/CalculationResult.java` como `record`
+- [x] Quatro campos: `BigDecimal gross, inss, irrf, net`
+- [x] Sem nenhuma lógica de cálculo — apenas agregação de dados
 
 ---
 

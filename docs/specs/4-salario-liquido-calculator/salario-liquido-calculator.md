@@ -9,18 +9,18 @@ Orquestra o cálculo completo do salário líquido. Recebe um `GrossSalary` vali
 ## Checklist de Implementação
 
 ### Estrutura da classe
-- [ ] Criar `src/main/java/com/pfc/tdd/calculator/domain/SalaryNetCalculator.java`
-- [ ] Construtor com dois parâmetros: `SalaryNetCalculator(InssTable inssTable, IrrfTable irrfTable)`
-- [ ] Exatamente 2 campos de instância: `inssTable` e `irrfTable` (OC #8)
+- [x] Criar `src/main/java/com/pfc/tdd/calculator/domain/SalaryNetCalculator.java`
+- [x] Construtor com dois parâmetros: `SalaryNetCalculator(InssTable inssTable, IrrfTable irrfTable)`
+- [x] Exatamente 2 campos de instância: `inssTable` e `irrfTable` (OC #8)
 
 ### Método calculate
-- [ ] Assinatura: `public CalculationResult calculate(GrossSalary grossSalary)`
-- [ ] Passo 1: `var inss = inssTable.calculate(grossSalary.value())`
-- [ ] Passo 2: `var taxableBase = grossSalary.value().subtract(inss)`
-- [ ] Passo 3: `var irrf = irrfTable.calculate(taxableBase)`
-- [ ] Passo 4: `var net = grossSalary.value().subtract(inss).subtract(irrf)`
-- [ ] Passo 5: `return new CalculationResult(grossSalary.value(), inss, irrf, net)`
-- [ ] Método ≤ 7 linhas (OC #7)
+- [x] Assinatura: `public CalculationResult calculate(GrossSalary grossSalary)`
+- [x] Passo 1: `var inss = inssTable.calculate(grossSalary.value())`
+- [x] Passo 2: `var taxableBase = grossSalary.value().subtract(inss)`
+- [x] Passo 3: `var irrf = irrfTable.calculate(taxableBase)`
+- [x] Passo 4: `var net = grossSalary.value().subtract(inss).subtract(irrf)`
+- [x] Passo 5: `return new CalculationResult(grossSalary.value(), inss, irrf, net)`
+- [x] Método ≤ 7 linhas (OC #7)
 
 ---
 
