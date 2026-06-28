@@ -173,22 +173,7 @@ A contradição de design na spec (thread local vs campo para `stop()`) foi abso
 
 ---
 
-## 10. Cronologia Comparada
-
-| Marco | `with-tdd` | `without-tdd` |
-|---|---|---|
-| Commit inicial | 25/02/2026 | 25/02/2026 |
-| Especificações criadas | 04/05/2026 | 13/05/2026 |
-| Início dos ciclos | 07/05/2026 | 13/05/2026 |
-| Conclusão | 13/05/2026 | 14/05/2026 |
-| Duração dos ciclos ativos | ~7 dias | ~2 dias |
-| Commits de feature | 9 | 4 |
-
-A duração menor dos ciclos na branch sem TDD reflete a ausência das etapas RED e REFACTOR — não maior produtividade. Os 4 commits de feature agrupam múltiplos ciclos em um único commit cada (ex.: `feat: implementar domínio de calculadora de salário bruto e líquido` cobre os ciclos 3 e 4 juntos), o que reduz rastreabilidade.
-
----
-
-## 11. Conclusões
+## 10. Conclusões
 
 1. **A ausência de testes não elimina a necessidade de especificação** — ela apenas a desloca para documentos YAML e planos de implementação que não podem ser executados automaticamente. O esforço de especificação foi equivalente; o retorno em garantia de correção foi drasticamente menor.
 
