@@ -211,7 +211,6 @@ Verifica a presença de cada campo no painel formatado (cabeçalho, rótulos e v
 | 12/05/2026 | Ciclos 3–7 concluídos — domínio + camada TUI |
 | 13/05/2026 | Ciclo 8 concluído — `TuiApp` e integração final |
 
-**Duração total do desenvolvimento ativo (ciclos):** ~7 dias (07/05 – 13/05/2026)  
 **Total de commits:** 15
 
 ---
